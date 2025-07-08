@@ -6,40 +6,70 @@
 </head>
 <body>
   <script>
-    // Load Customer.io JS
-    !function(){
-      var i="cioanalytics", analytics=(window[i]=window[i]||[]);
-      if(!analytics.initialize){
-        if(analytics.invoked) return;
-        analytics.invoked = true;
-        analytics.methods = ["track","page","identify"];
-        analytics.factory = function(t){
-          return function(){
-            var e = Array.prototype.slice.call(arguments);
-            e.unshift(t);
-            analytics.push(e);
+  !function () {
+    var i = "cioanalytics",
+        analytics = (window[i] = window[i] || []);
+
+    if (!analytics.initialize) {
+      if (analytics.invoked) {
+        window.console && console.error && console.error("Snippet included twice.");
+      } else {
+        analytics.invoked = !0;
+
+        analytics.methods = [
+          "trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify", "reset",
+          "group", "track", "ready", "alias", "debug", "page", "once", "off", "on",
+          "addSourceMiddleware", "addIntegrationMiddleware", "setAnonymousId", "addDestinationMiddleware"
+        ];
+
+        analytics.factory = function (e) {
+          return function () {
+            var t = Array.prototype.slice.call(arguments);
+            t.unshift(e);
+            analytics.push(t);
             return analytics;
-          }
+          };
         };
-        for(var t=0;t<analytics.methods.length;t++){
-          var e=analytics.methods[t];
-          analytics[e] = analytics.factory(e);
+
+        for (var e = 0; e < analytics.methods.length; e++) {
+          var key = analytics.methods[e];
+          analytics[key] = analytics.factory(key);
         }
-        analytics.load = function(t){
-          var e = document.createElement("script");
-          e.type = "text/javascript";
-          e.async = true;
-          e.src = "https://cdp.customer.io/v1/analytics-js/snippet/" + t + "/analytics.min.js";
+
+        analytics.load = function (key, e) {
+          var t = document.createElement("script");
+          t.type = "text/javascript";
+          t.async = !0;
+          t.setAttribute("data-global-customerio-analytics-key", i);
+          t.src = "https://cdp.customer.io/v1/analytics-js/snippet/" + key + "/analytics.min.js";
           var n = document.getElementsByTagName("script")[0];
-          n.parentNode.insertBefore(e,n);
+          n.parentNode.insertBefore(t, n);
+          analytics._writeKey = key;
+          analytics._loadOptions = e;
         };
 
         analytics.SNIPPET_VERSION = "4.15.3";
-        analytics.load("386390ab72390ba7fa9e");
+
+        analytics.load(
+          "386390ab72390ba7fa9e"
+          // Optional: enable anonymous in-app. See https://docs.customer.io/journeys/anonymous-in-app/#enable-anonymous-in-app-messaging.
+          /*
+          ,{
+            integrations: {
+              "Customer.io In-App Plugin": {
+                anonymousInApp: true
+              }
+            }
+          }
+          */
+        );
+
         analytics.page();
       }
-    }();
-  </script>
+    }
+  }();
+</script>
+
 
   <script>
     // Parse query parameters
