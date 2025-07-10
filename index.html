@@ -57,21 +57,42 @@
           analytics[key] = analytics.factory(key);
         }
 
-        analytics.load = function (key, options) {
-          var script = document.createElement("script");
-          script.type = "text/javascript";
-          script.async = true;
-          script.setAttribute('data-global-customerio-analytics-key', i);
-          //script.src = "https://cdp.customer.io/v1/analytics-js/snippet/" + key + "/analytics.min.js";
-          script.src = "https://corsproxy.io/?https://armada-rogelio.github.io/tixr-iframe/analytics.min.js";
+        // analytics.load = function (key, options) {
+        //   var script = document.createElement("script");
+        //   script.type = "text/javascript";
+        //   script.async = true;
+        //   script.setAttribute('data-global-customerio-analytics-key', i);
+        //   //script.src = "https://cdp.customer.io/v1/analytics-js/snippet/" + key + "/analytics.min.js";
+        //   script.src = "https://corsproxy.io/?https://armada-rogelio.github.io/tixr-iframe/analytics.min.js";
     
   
-          var firstScript = document.getElementsByTagName("script")[0];
-          firstScript.parentNode.insertBefore(script, firstScript);
+        //   var firstScript = document.getElementsByTagName("script")[0];
+        //   firstScript.parentNode.insertBefore(script, firstScript);
 
+        //   analytics._writeKey = key;
+        //   analytics._loadOptions = options;
+        // };
+
+      analytics.load = function (key, options) {
+      fetch("fetch("https://corsproxy.io/?https://armada-rogelio.github.io/tixr-iframe/analytics.min.js")
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Failed to load script content.");
+          }
+          return response.text();
+        })
+        .then(scriptContent => {
+          // Execute the script content
+          new Function(scriptContent)();
+    
+          // Store key and options as you intended
           analytics._writeKey = key;
           analytics._loadOptions = options;
-        };
+        })
+        .catch(error => {
+          console.error("Script load error:", error);
+        });
+    };
 
         analytics.SNIPPET_VERSION = "4.15.3";
 
