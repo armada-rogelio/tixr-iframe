@@ -57,14 +57,33 @@
           analytics[key] = analytics.factory(key);
         }
 
-        analytics.load = function (key, e) {
-          var t = document.createElement("script");
-          t.type = "text/javascript";
-          t.async = !0;
-          t.setAttribute("data-global-customerio-analytics-key", i);
-          t.src = "analytics.min.js"; 
-          var n = document.getElementsByTagName("script")[0];
-          n.parentNode.insertBefore(t, n);
+        // analytics.load = function (key, e) {
+        //   var t = document.createElement("script");
+        //   t.type = "text/javascript";
+        //   t.async = !0;
+        //   t.setAttribute("data-global-customerio-analytics-key", i);
+        //   t.src = "analytics.min.js"; 
+        //   var n = document.getElementsByTagName("script")[0];
+        //   n.parentNode.insertBefore(t, n);
+        //   analytics._writeKey = key;
+        //   analytics._loadOptions = e;
+        // };
+
+          analytics.load = function (key, e) {
+          fetch('analytics.min.js')
+            .then(response => response.text())
+            .then(code => {
+              var t = document.createElement("script");
+              t.type = "text/javascript";
+              t.textContent = code;
+              t.setAttribute("data-global-customerio-analytics-key", key);
+              var n = document.getElementsByTagName("script")[0];
+              n.parentNode.insertBefore(t, n);
+            })
+            .catch(err => {
+              console.error("Failed to load analytics script:", err);
+            });
+        
           analytics._writeKey = key;
           analytics._loadOptions = e;
         };
