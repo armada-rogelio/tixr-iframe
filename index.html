@@ -3,6 +3,27 @@
 <head>
   <title>Tixr Conversion Tracker</title>
   <meta charset="utf-8">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2SWF4V7Z0Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+  
+    gtag('config', 'G-2SWF4V7Z0Q');
+  
+    // Wait for page to load, then track all query params dynamically
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const eventData = { event_category: 'iframe' };
+  
+      // Convert URLSearchParams to plain object
+      for (const [key, value] of params.entries()) {
+        eventData[key] = value;
+      }
+  
+      gtag('event', 'iframe_page_view', eventData);
+    });
+  </script>
 </head>
 <body>
   <script>
@@ -88,19 +109,6 @@
     (function() {
       const params = getQueryParams();
       const eventName = params.en || 'CustomEvent';
-
-       // Use FormData to avoid CORS preflight
-      const formData = new FormData();
-      for (const key in params) {
-        formData.append(key, params[key]);
-      }
-  
-      // Send to Google Apps Script
-      fetch('https://script.google.com/macros/s/AKfycbzjqBOamAusB8p3MpbI9eNajoea3Ue2ZGXaQD6I7-AzbD8dLmaPz8wgnkje12fMQvikbA/exec', {
-        method: 'POST',
-        body: formData
-      }).catch(console.error);
-
 
       
       // Track event with all params
