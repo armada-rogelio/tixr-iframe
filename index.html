@@ -89,14 +89,14 @@
       const params = getQueryParams();
       const eventName = params.en || 'CustomEvent';
 
-     // Send to Google Sheets via Google Apps Script using JSON
+      const formData = new FormData();
+      Object.entries(params).forEach(([key, val]) => formData.append(key, val));
+      
       fetch('https://script.google.com/macros/s/AKfycbzjqBOamAusB8p3MpbI9eNajoea3Ue2ZGXaQD6I7-AzbD8dLmaPz8wgnkje12fMQvikbA/exec', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(params)
-      }).catch(console.error);
+        body: formData
+      });
+
 
       
       // Track event with all params
