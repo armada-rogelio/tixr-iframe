@@ -89,13 +89,17 @@
       const params = getQueryParams();
       const eventName = params.en || 'CustomEvent';
 
+       // Use FormData to avoid CORS preflight
       const formData = new FormData();
-      Object.entries(params).forEach(([key, val]) => formData.append(key, val));
-      
+      for (const key in params) {
+        formData.append(key, params[key]);
+      }
+  
+      // Send to Google Apps Script
       fetch('https://script.google.com/macros/s/AKfycbzjqBOamAusB8p3MpbI9eNajoea3Ue2ZGXaQD6I7-AzbD8dLmaPz8wgnkje12fMQvikbA/exec', {
         method: 'POST',
         body: formData
-      });
+      }).catch(console.error);
 
 
       
