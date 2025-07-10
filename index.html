@@ -89,23 +89,13 @@
       const params = getQueryParams();
       const eventName = params.en || 'CustomEvent';
 
-    // Parse URL parameters
-      const urlParams = new URLSearchParams(window.location.search);
-      const googleParams = Object.fromEntries(urlParams.entries());
-      
-      // Build URL-encoded form data
-      const formData = new URLSearchParams();
-      for (const key in googleParams) {
-        formData.append(key, googleParams[key]);
-      }
-      
-      // Send to Google Sheets via Google Apps Script
+     // Send to Google Sheets via Google Apps Script using JSON
       fetch('https://script.google.com/macros/s/AKfycbzjqBOamAusB8p3MpbI9eNajoea3Ue2ZGXaQD6I7-AzbD8dLmaPz8wgnkje12fMQvikbA/exec', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/json'
         },
-        body: formData.toString()
+        body: JSON.stringify(params)
       }).catch(console.error);
 
       
