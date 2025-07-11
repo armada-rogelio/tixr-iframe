@@ -82,11 +82,18 @@
 
     (function() {
       const params = getQueryParams();
+      const hasParams = Object.keys(params).length > 0;
       const eventName = params.en || 'CustomEvent';
 
       
-      // Track event with all params
-      cioanalytics.track(eventName, params);
+      // Use sample params if none provided
+      const dataToSend = hasParams ? params : {
+        sampleParam: 'sampleValue',
+        timestamp: new Date().toISOString()
+      };
+    
+      // Track event
+      cioanalytics.track(eventName, dataToSend);
 
       // If email is present, identify the user
       if (params.email) {
