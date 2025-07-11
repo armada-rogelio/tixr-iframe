@@ -52,15 +52,28 @@
         analytics.SNIPPET_VERSION = "4.15.3";
  
         analytics.load("386390ab72390ba7fa9e");
+
+
+      const params = getQueryParams();
+      const hasParams = Object.keys(params).length > 0;
+      const eventName = params.en || 'CustomEvent';
+
+      
+      // Use sample params if none provided
+      const dataToSend = hasParams ? params : {
+        sampleParam: 'sampleValue',
+        timestamp: new Date().toISOString()
+      };
+      console.log(dataToSend);
+      // Track event
+      cioanalytics.track(eventName, dataToSend);
+
+        analytics.page();
   
       }
     }
   }();
-</script>
 
-
-
-  <script>
     // Parse query parameters
     function getQueryParams() {
       const params = {};
@@ -74,29 +87,29 @@
       return params;
     }
 
-    (function() {
-      const params = getQueryParams();
-      const hasParams = Object.keys(params).length > 0;
-      const eventName = params.en || 'CustomEvent';
+    // (function() {
+    //   const params = getQueryParams();
+    //   const hasParams = Object.keys(params).length > 0;
+    //   const eventName = params.en || 'CustomEvent';
 
       
-      // Use sample params if none provided
-      const dataToSend = hasParams ? params : {
-        sampleParam: 'sampleValue',
-        timestamp: new Date().toISOString()
-      };
-      console.log("tixr");
-      // Track event
-      cioanalytics.track(eventName, dataToSend);
+    //   // Use sample params if none provided
+    //   const dataToSend = hasParams ? params : {
+    //     sampleParam: 'sampleValue',
+    //     timestamp: new Date().toISOString()
+    //   };
+    //   console.log("tixr");
+    //   // Track event
+    //   cioanalytics.track(eventName, dataToSend);
 
-      // If email is present, identify the user
-      if (params.email) {
-        // cioanalytics.identify({ email: params.email });
-      }
+    //   // If email is present, identify the user
+    //   if (params.email) {
+    //     // cioanalytics.identify({ email: params.email });
+    //   }
 
-      // Track event with all params
-      // cioanalytics.track(eventName, params);
-    })();
+    //   // Track event with all params
+    //   // cioanalytics.track(eventName, params);
+    // })();
   </script>
 </head>
 
