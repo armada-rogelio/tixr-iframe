@@ -64,9 +64,20 @@
         sampleParam: 'sampleValue',
         timestamp: new Date().toISOString()
       };
-      console.log(dataToSend);
-      // Track event
-      cioanalytics.track(eventName, dataToSend);
+      
+      try {
+          cioanalytics.track(eventName, dataToSend)
+            .then(response => {
+              console.log('Tracking response:', response);
+            })
+            .catch(error => {
+              console.error('Tracking failed:', error);
+            });
+        } catch (error) {
+          // Catch any unexpected synchronous errors
+          console.error('Unexpected error:', error);
+        }
+             
 
         analytics.page();
   
