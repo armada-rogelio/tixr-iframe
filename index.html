@@ -3,44 +3,70 @@
 <head>
   <title>Tixr Conversion Tracker</title>
   <meta charset="utf-8">
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2SWF4V7Z0Q"></script>
+</head>
+
+
+<body>
+
+  
+  
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-  
-    gtag('config', 'G-2SWF4V7Z0Q');
-  
-    // Wait for page to load, then track all query params dynamically
-    window.addEventListener('DOMContentLoaded', () => {
-      //const params = getQueryParams();
-      //const eventData = { event_category: 'iframe' };
-  
-      // // Convert URLSearchParams to plain object
-      // for (const [key, value] of params.entries()) {
-      //   eventData[key] = value;
-      // }
-  
-      //gtag('event', 'iframe_page_view', params);
-          console.log('Inside iframe. Page loaded.');
+   !function () {
+    var i = "cioanalytics",
+        analytics = (window[i] = window[i] || []);
 
-          // Log all query parameters
-          const params = new URLSearchParams(window.location.search);
-          for (const [key, value] of params.entries()) {
-            console.log(`[Query Param] ${key} = ${value}`);
-          }
-        
-          // Listen for messages from parent
-          window.addEventListener('message', (event) => {
-            console.log(`[PostMessage] From: ${event.origin}, Data:`, event.data);
-          });
-        
-          // Optional: confirm you're inside an iframe
-          if (window.self !== window.top) {
-            console.log('Confirmed: running inside an iframe');
-          }
-    });
+    if (!analytics.initialize) {
+      if (analytics.invoked) {
+        window.console && console.error && console.error("Snippet included twice.");
+      } else {
+        analytics.invoked = true;
+        analytics.methods = [
+          "trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify",
+          "reset", "group", "track", "ready", "alias", "debug", "page", "once", "off", "on",
+          "addSourceMiddleware", "addIntegrationMiddleware", "setAnonymousId", "addDestinationMiddleware"
+        ];
 
+        analytics.factory = function (method) {
+          return function () {
+            var args = Array.prototype.slice.call(arguments);
+            args.unshift(method);
+            analytics.push(args);
+            return analytics;
+          };
+        };
+
+        for (var e = 0; e < analytics.methods.length; e++) {
+          var key = analytics.methods[e];
+          analytics[key] = analytics.factory(key);
+        }
+
+         analytics.load = function (key, options) {
+          var script = document.createElement("script");
+          script.type = "text/javascript";
+          script.async = true;
+          script.setAttribute('data-global-customerio-analytics-key', i);
+          script.src = "https://cdp.customer.io/v1/analytics-js/snippet/" + key + "/analytics.min.js";
+        
+          var firstScript = document.getElementsByTagName("script")[0];
+          firstScript.parentNode.insertBefore(script, firstScript);
+
+          analytics._writeKey = key;
+          analytics._loadOptions = options;
+        };
+
+        
+        analytics.SNIPPET_VERSION = "4.15.3";
+ 
+        analytics.load("386390ab72390ba7fa9e");
+  
+      }
+    }
+  }();
+</script>
+
+
+
+  <script>
     // Parse query parameters
     function getQueryParams() {
       const params = {};
@@ -53,11 +79,24 @@
       }
       return params;
     }
+
+    (function() {
+      const params = getQueryParams();
+      const eventName = params.en || 'CustomEvent';
+
+      
+      // Track event with all params
+      cioanalytics.track(eventName, params);
+
+      // If email is present, identify the user
+      if (params.email) {
+        // cioanalytics.identify({ email: params.email });
+      }
+
+      // Track event with all params
+      // cioanalytics.track(eventName, params);
+    })();
   </script>
-</head>
-
-
-<body>
 
  
 </body>
