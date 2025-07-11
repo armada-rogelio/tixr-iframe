@@ -66,18 +66,16 @@
       };
       
       try {
-          cioanalytics.track(eventName, dataToSend)
-            .then(response => {
-              console.log('Tracking response:', response);
-            })
-            .catch(error => {
-              console.error('Tracking failed:', error);
-            });
+          if (window.cioanalytics && typeof cioanalytics.track === 'function') {
+            const response = cioanalytics.track(eventName, dataToSend);
+            console.log('Tracking response:', response);
+          } else {
+            console.warn('cioanalytics.track is not available');
+          }
         } catch (error) {
-          // Catch any unexpected synchronous errors
-          console.error('Unexpected error:', error);
-        }
-             
+          console.error('Tracking failed:', error);
+      }
+
 
         analytics.page();
   
