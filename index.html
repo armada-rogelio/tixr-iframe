@@ -14,14 +14,14 @@
     // Wait for page to load, then track all query params dynamically
     window.addEventListener('DOMContentLoaded', () => {
       const params = getQueryParams();
-      const eventData = { event_category: 'iframe' };
+      // const eventData = { event_category: 'iframe' };
   
-      // Convert URLSearchParams to plain object
-      for (const [key, value] of params.entries()) {
-        eventData[key] = value;
-      }
+      // // Convert URLSearchParams to plain object
+      // for (const [key, value] of params.entries()) {
+      //   eventData[key] = value;
+      // }
   
-      gtag('event', 'iframe_page_view', eventData);
+      gtag('event', 'iframe_page_view', params);
     });
 
 
