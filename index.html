@@ -95,6 +95,30 @@
 
 <body>
 
- 
+ <script>
+    const tixrVars = {
+      currency: '::currency::',
+      event_name: '::event_name::',
+      fan_id: '::fan_id::',
+      group_name: '::group_name::',
+      hash_email: '::hash_email::',
+      hash_phone: '::hash_phone::',
+      order_amount: '::order_amount::',
+      order_id: '::order_id::',
+      order_quantity: '::order_quantity::',
+      page_name: '::page_name::',
+      random: '::random::',
+      url: '::url::'
+    };
+
+    console.log("🔍 Tixr Variable Debug:");
+    for (const [key, value] of Object.entries(tixrVars)) {
+      if (value.includes('::')) {
+        console.warn(`❌ ${key} was NOT injected. Still placeholder:`, value);
+      } else {
+        console.log(`✅ ${key}:`, value);
+      }
+    }
+  </script>
 </body>
 </html>
