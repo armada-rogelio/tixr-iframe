@@ -24,6 +24,42 @@
       //gtag('event', 'iframe_page_view', params);
           console.log('Inside iframe. Page loaded.');
 
+
+           // Store Tixr-injected values
+            const orderId = '::order_id::';
+            const orderAmount = parseFloat('::order_amount::');
+            const currency = '::currency::';
+            const eventName = '::event_name::';
+            const orderQuantity = parseInt('::order_quantity::');
+            const groupName = '::group_name::';
+            const pageTitle = '::page_name::';
+            const pageUrl = '::url::';
+          
+            // Debug logging
+            console.log("Tixr Order ID:", orderId);
+            console.log("Tixr Order Amount:", orderAmount);
+            console.log("Tixr Currency:", currency);
+            console.log("Tixr Event Name:", eventName);
+            console.log("Tixr Order Quantity:", orderQuantity);
+            console.log("Tixr Group Name:", groupName);
+            console.log("Tixr Page Title:", pageTitle);
+            console.log("Tixr Page URL:", pageUrl);
+          
+            // Fire GA4 purchase event
+            gtag('event', 'iframe_page_view', {
+              transaction_id: orderId,
+              value: orderAmount,
+              currency: currency,
+              items: [{
+                item_name: eventName,
+                quantity: orderQuantity,
+                item_id: orderId,
+                item_category: groupName
+              }],
+              page_title: pageTitle,
+              page_location: pageUrl
+            });
+
           // Log all query parameters
           const params = new URLSearchParams(window.location.search);
           for (const [key, value] of params.entries()) {
