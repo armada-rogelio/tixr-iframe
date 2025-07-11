@@ -13,15 +13,32 @@
   
     // Wait for page to load, then track all query params dynamically
     window.addEventListener('DOMContentLoaded', () => {
-      // const params = getQueryParams();
-      // const eventData = { event_category: 'iframe' };
+      //const params = getQueryParams();
+      //const eventData = { event_category: 'iframe' };
   
       // // Convert URLSearchParams to plain object
       // for (const [key, value] of params.entries()) {
       //   eventData[key] = value;
       // }
   
-      gtag('event', 'iframe_page_view', params);
+      //gtag('event', 'iframe_page_view', params);
+          console.log('Inside iframe. Page loaded.');
+
+          // Log all query parameters
+          const params = new URLSearchParams(window.location.search);
+          for (const [key, value] of params.entries()) {
+            console.log(`[Query Param] ${key} = ${value}`);
+          }
+        
+          // Listen for messages from parent
+          window.addEventListener('message', (event) => {
+            console.log(`[PostMessage] From: ${event.origin}, Data:`, event.data);
+          });
+        
+          // Optional: confirm you're inside an iframe
+          if (window.self !== window.top) {
+            console.log('Confirmed: running inside an iframe');
+          }
     });
 
     // Parse query parameters
