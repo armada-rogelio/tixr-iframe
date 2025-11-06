@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tacos & Tequila Festival - Throwback Hip-Hop Experience 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-orange: #FF6B35;
+            --primary-purple: #6B35FF;
+            --dark-bg: #0A0A0A;
+            --card-bg: #1A1A1A;
+            --accent-pink: #fe007d;
+            --accent-yellow: #FFD700;
+            --lime: #a7cd02;
+            --text-light: #FFFFFF;
+            --text-gray: #CCCCCC;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-light);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Animated gradient background */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0A0A0A 0%, #1A0A2E 50%, #0A0A0A 100%);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 107, 53, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(254, 0, 125, 0.15) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .hero video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.4;
+            z-index: 1;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        nav.scrolled {
+            padding: 1rem 5%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            background: rgba(10, 10, 10, 0.98);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-orange), var(--accent-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-pink), var(--primary-orange));
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-50%);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-pink);
+        }
+
+        /* Dropdown Menu */
+        .nav-links li {
+            position: relative;
+        }
+
+        .nav-links .sub-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgba(10, 10, 10, 0.98);
+            backdrop-filter: blur(20px);
+            min-width: 220px;
+            padding: 1rem 0;
+            list-style: none;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            border-top: 2px solid var(--accent-pink);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            border-radius: 0 0 12px 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .nav-links .sub-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .nav-links .sub-menu::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-links .sub-menu::-webkit-scrollbar-thumb {
+            background: var(--accent-pink);
+            border-radius: 3px;
+        }
+
+        .nav-links li:hover > .sub-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .nav-links .sub-menu li {
+            padding: 0;
+        }
+
+        .nav-links .sub-menu a {
+            padding: 0.8rem 1.5rem;
+            display: block;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links .sub-menu a::after {
+            display: none;
+        }
+
+        .nav-links .sub-menu a:hover {
+            background: rgba(254, 0, 125, 0.15);
+            padding-left: 2rem;
+            color: var(--accent-pink);
+        }
+
+        .menu-item-has-children > a::before {
+            content: '▼';
+            font-size: 0.6rem;
+            margin-left: 0.5rem;
+            opacity: 0.7;
+        }
+
+        .mobile-menu {
+            display: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: color 0.3s ease;
+        }
+
+        .mobile-menu:hover {
+            color: var(--accent-pink);
+        }
+
+        /* Hero Content */
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2rem;
+            max-width: 1200px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.6rem 1.5rem;
+            background: rgba(254, 0, 125, 0.15);
+            border: 1px solid var(--accent-pink);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease 0.2s both;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3.5rem, 10vw, 8rem);
+            font-weight: 900;
+            line-height: 0.95;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #FFFFFF 0%, var(--accent-yellow) 50%, var(--accent-pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 1s ease 0.4s both;
+            letter-spacing: -2px;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            color: var(--text-gray);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            animation: fadeInUp 1s ease 0.6s both;
+            font-weight: 400;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* CTA Buttons */
+        .cta-group {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease 0.8s both;
+        }
+
+        .btn {
+            padding: 1.3rem 3.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-pink), var(--primary-orange));
+            color: var(--text-light);
+            box-shadow: 0 10px 30px rgba(254, 0, 125, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(254, 0, 125, 0.6);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--text-light);
+            transform: translateY(-4px);
+        }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            z-index: 2;
+            color: var(--text-gray);
+            font-size: 2rem;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
+        /* Section Styling */
+        section {
+            padding: 8rem 5%;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .section-label {
+            font-size: 0.85rem;
+            color: var(--accent-pink);
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: rgba(254, 0, 125, 0.1);
+            border-radius: 50px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            letter-spacing: -1px;
+            line-height: 1.1;
+        }
+
+        .section-description {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* Stats Section */
+        .stats {
+            background: linear-gradient(135deg, rgba(254, 0, 125, 0.05), rgba(255, 107, 53, 0.05));
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            text-align: center;
+            position: relative;
+        }
+
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-pink), var(--primary-orange));
+            border-radius: 2px;
+        }
+
+        .stat-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3rem, 5vw, 5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-pink), var(--primary-orange), var(--accent-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+            padding: 3rem 2.5rem;
+            border-radius: 24px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(254, 0, 125, 0.1), rgba(255, 107, 53, 0.1));
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 30px 80px rgba(254, 0, 125, 0.3);
+            border-color: rgba(254, 0, 125, 0.4);
+        }
+
+        .feature-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.5s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .feature-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-text {
+            color: var(--text-gray);
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Image Gallery */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            aspect-ratio: 4/3;
+            cursor: pointer;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .gallery-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.8) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 2;
+        }
+
+        .gallery-item:hover::before {
+            opacity: 1;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.15);
+        }
+
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem;
+            z-index: 3;
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+        }
+
+        .gallery-item:hover .gallery-caption {
+            transform: translateY(0);
+        }
+
+        .gallery-caption h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Newsletter Section */
+        .newsletter {
+            background: linear-gradient(135deg, var(--accent-pink), var(--primary-orange));
+            padding: 6rem 5%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .newsletter::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/></svg>');
+            opacity: 0.3;
+        }
+
+        .newsletter-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .newsletter-form {
+            max-width: 600px;
+            margin: 2.5rem auto 0;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .newsletter-input {
+            flex: 1;
+            min-width: 280px;
+            padding: 1.3rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.25);
+            color: var(--text-light);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .newsletter-input::placeholder {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .newsletter-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.35);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            background: #000;
+            padding: 4rem 5% 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            color: var(--text-light);
+            font-size: 1.3rem;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .social-link:hover {
+            background: var(--accent-pink);
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 30px rgba(254, 0, 125, 0.5);
+            border-color: var(--accent-pink);
+        }
+
+        /* Scroll Animation */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(60px);
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .scroll-reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Parallax Effect */
+        .parallax-section {
+            position: relative;
+            height: 600px;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: url('https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=1600&q=80');
+        }
+
+        .parallax-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(254, 0, 125, 0.7), rgba(255, 107, 53, 0.7));
+        }
+
+        .parallax-content {
+            text-align: center;
+            z-index: 2;
+            position: relative;
+            padding: 2rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 968px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            section {
+                padding: 4rem 5%;
+            }
+
+            .cta-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .features-grid,
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+            }
+
+            .newsletter-input {
+                width: 100%;
+            }
+
+            .stats-grid {
+                gap: 3rem;
+            }
+
+            .parallax-section {
+                background-attachment: scroll;
+                height: 400px;
+            }
+        }
+
+        /* Loading Animation */
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .animated-gradient {
+            background: linear-gradient(270deg, var(--accent-pink), var(--primary-orange), var(--accent-yellow));
+            background-size: 600% 600%;
+            animation: gradient-shift 5s ease infinite;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Floating Animation */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Glow Animation */
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(254, 0, 125, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(254, 0, 125, 0.8), 0 0 60px rgba(255, 107, 53, 0.6);
+            }
+        }
+
+        .glow-effect {
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        /* Shake Animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        /* Slide In Animations */
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slide-left {
+            animation: slideInLeft 1s ease-out;
+        }
+
+        .slide-right {
+            animation: slideInRight 1s ease-out;
+        }
+
+        /* Rotate Animation */
+        @keyframes rotate360 {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .rotate-slow {
+            animation: rotate360 20s linear infinite;
+        }
+
+        /* Pulse Animation */
+        @keyframes pulse-scale {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .pulse-animation {
+            animation: pulse-scale 2s ease-in-out infinite;
+        }
+
+        /* Shimmer Effect */
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            background-size: 1000px 100%;
+            animation: shimmer 3s infinite;
+        }
+
+        /* Text Reveal Animation */
+        @keyframes textReveal {
+            0% {
+                clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%);
+            }
+            100% {
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+            }
+        }
+
+        .text-reveal {
+            animation: textReveal 1.5s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+        }
+
+        /* Bounce In Animation */
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .bounce-in {
+            animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        /* Fade In Stagger */
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        .stagger-5 { animation-delay: 0.5s; }
+        .stagger-6 { animation-delay: 0.6s; }
+
+        /* Wiggle Animation */
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+
+        .wiggle:hover {
+            animation: wiggle 0.5s ease-in-out;
+        }
+
+        /* Magnetic Effect */
+        .magnetic {
+            transition: transform 0.3s ease;
+        }
+
+        .magnetic:hover {
+            transform: scale(1.1);
+        }
+
+        /* Background Particles */
+        @keyframes float-particles {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0.3;
+            }
+            50% {
+                transform: translateY(-100px) translateX(50px);
+                opacity: 0.7;
+            }
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .particle-1 {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(254, 0, 125, 0.2), transparent);
+            top: 20%;
+            left: 10%;
+            animation: float-particles 8s ease-in-out infinite;
+        }
+
+        .particle-2 {
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(255, 107, 53, 0.2), transparent);
+            top: 60%;
+            right: 15%;
+            animation: float-particles 10s ease-in-out infinite 2s;
+        }
+
+        .particle-3 {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.2), transparent);
+            bottom: 30%;
+            left: 20%;
+            animation: float-particles 12s ease-in-out infinite 4s;
+        }
+
+        /* Tilt Effect */
+        .tilt-effect {
+            transition: transform 0.3s ease;
+        }
+
+        .tilt-effect:hover {
+            transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="logo">🌮 TACOS & TEQUILA</div>
+            <ul class="nav-links">
+                <li><a href="#home">HOME</a></li>
+                <li class="menu-item-has-children">
+                    <a href="#locations">LOCATIONS</a>
+                    <ul class="sub-menu">
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/boise/">BOISE</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/buffalo/">BUFFALO</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/chicago/">CHICAGO</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/cincinnati/">CINCINNATI</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/cleveland/">CLEVELAND</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/colorado-springs/">COLORADO SPRINGS</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/dallas-fort-worth/">DALLAS</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/houston/">HOUSTON</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/kansas-city/">KANSAS CITY</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/milwaukee/">MILWAUKEE</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/omaha/">OMAHA</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/ottawa/">OTTAWA</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/pittsburgh/">PITTSBURGH</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/saint-louis/">ST. LOUIS</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/sanantonio/">SAN ANTONIO</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/sioux-falls/">SIOUX FALLS</a></li>
+                        <li><a href="https://tacostequildev.wpenginepowered.com/market/winnipeg/">WINNIPEG</a></li>
+                    </ul>
+                </li>
+                <li><a href="https://tacostequildev.wpenginepowered.com/accessibility/">ACCESSIBILITY</a></li>
+                <li><a href="https://tacostequildev.wpenginepowered.com/privacy-policy/">PRIVACY POLICY</a></li>
+                <li><a href="https://tacostequildev.wpenginepowered.com/terms-and-conditions/">TERMS & CONDITIONS</a></li>
+            </ul>
+            <div class="mobile-menu">☰</div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <video autoplay muted loop playsinline>
+            <source src="https://enchant2025stg.wpenginepowered.com/wp-content/uploads/2025/10/Evergreen-Video-Tacos-and-Tequila-2025-V1-BG.mp4" type="video/mp4">
+        </video>
+        <div class="particle particle-1"></div>
+        <div class="particle particle-2"></div>
+        <div class="particle particle-3"></div>
+        <div class="hero-content">
+            <div class="hero-badge pulse-animation">✨ 2026 Tour Announcement</div>
+            <h1 class="hero-title text-reveal">THROWBACK<br>HIP-HOP<br>FESTIVAL</h1>
+            <p class="hero-subtitle">
+                The ultimate fusion of legendary hip-hop, authentic tacos, and premium tequila experiences across North America.
+            </p>
+            <div class="cta-group">
+                <a href="#tickets" class="btn btn-primary glow-effect wiggle"><span>🎟️ Win VIP Tickets</span></a>
+                <a href="#experience" class="btn btn-secondary"><span>View Experience</span></a>
+            </div>
+        </div>
+        <div class="scroll-indicator floating">↓</div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats scroll-reveal">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">50K+</div>
+                <div class="stat-label">Festival Fans</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">25+</div>
+                <div class="stat-label">Hip-Hop Legends</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100+</div>
+                <div class="stat-label">Taco Varieties</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">15+</div>
+                <div class="stat-label">North American Cities</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="section-header scroll-reveal">
+            <div class="section-label">What We're About</div>
+            <h2 class="section-title">The OG Throwback<br>Experience</h2>
+            <p class="section-description">
+                Where legendary hip-hop meets culinary excellence and premium spirits. Come hungry, leave dancing!
+            </p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card scroll-reveal stagger-1 tilt-effect">
+                <span class="feature-icon pulse-animation">🎤</span>
+                <h3 class="feature-title">Legendary Artists</h3>
+                <p class="feature-text">
+                    Experience live performances from iconic throwback hip-hop artists who defined the golden era of rap and R&B.
+                </p>
+            </div>
+
+            <div class="feature-card scroll-reveal stagger-2 tilt-effect">
+                <span class="feature-icon pulse-animation">🌮</span>
+                <h3 class="feature-title">Gourmet Tacos</h3>
+                <p class="feature-text">
+                    Savor authentic and innovative taco creations from award-winning chefs and local food artisans.
+                </p>
+            </div>
+
+            <div class="feature-card scroll-reveal stagger-3 tilt-effect">
+                <span class="feature-icon pulse-animation">🍹</span>
+                <h3 class="feature-title">Premium Tequila</h3>
+                <p class="feature-text">
+                    Sample exclusive tequila flights, craft cocktails from brands like Patrón, Cayman Jack, and Tapatío.
+                </p>
+            </div>
+
+            <div class="feature-card scroll-reveal stagger-4 tilt-effect">
+                <span class="feature-icon pulse-animation">🎉</span>
+                <h3 class="feature-title">Brand Activations</h3>
+                <p class="feature-text">
+                    Engage with interactive experiences, photo moments, and pop-up installations from iconic partners.
+                </p>
+            </div>
+
+            <div class="feature-card scroll-reveal stagger-5 tilt-effect">
+                <span class="feature-icon pulse-animation">🎵</span>
+                <h3 class="feature-title">All-Day Vibes</h3>
+                <p class="feature-text">
+                    Non-stop entertainment with DJs, live shows, dance battles spanning multiple stages.
+                </p>
+            </div>
+
+            <div class="feature-card scroll-reveal stagger-6 tilt-effect">
+                <span class="feature-icon pulse-animation">🌟</span>
+                <h3 class="feature-title">VIP Experience</h3>
+                <p class="feature-text">
+                    Upgrade to VIP for exclusive lounge access, premium viewing, and artist meet-and-greets.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Parallax Section -->
+    <div class="parallax-section">
+        <div class="parallax-content">
+            <h2 class="section-title animated-gradient" style="color: white; margin-bottom: 1rem;">BE FIRST TO KNOW</h2>
+            <p style="font-size: 1.3rem; color: rgba(255,255,255,0.95); margin-bottom: 2rem;">Get exclusive 2026 tour dates and early bird ticket access</p>
+            <a href="#tickets" class="btn btn-secondary magnetic wiggle"><span>Sign Up Now</span></a>
+        </div>
+    </div>
+
+    <!-- Gallery Section -->
+    <section id="gallery">
+        <div class="section-header scroll-reveal">
+            <div class="section-label">Relive The Moments</div>
+            <h2 class="section-title">2025 Season Highlights</h2>
+            <p class="section-description">
+                An unforgettable season of tacos, tequila, and throwback vibes — all made possible by YOU.
+            </p>
+        </div>
+
+        <div class="gallery-grid">
+            <div class="gallery-item scroll-reveal bounce-in stagger-1">
+                <img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&q=80" alt="Festival crowd">
+                <div class="gallery-caption">
+                    <h3>Electric Energy</h3>
+                    <p>Thousands united by music</p>
+                </div>
+            </div>
+            <div class="gallery-item scroll-reveal bounce-in stagger-2">
+                <img src="https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800&q=80" alt="Gourmet tacos">
+                <div class="gallery-caption">
+                    <h3>Culinary Excellence</h3>
+                    <p>Award-winning creations</p>
+                </div>
+            </div>
+            <div class="gallery-item scroll-reveal bounce-in stagger-3">
+                <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&q=80" alt="Hip-hop performance">
+                <div class="gallery-caption">
+                    <h3>Legendary Performances</h3>
+                    <p>Icons on stage</p>
+                </div>
+            </div>
+            <div class="gallery-item scroll-reveal bounce-in stagger-4">
+                <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&q=80" alt="Tequila cocktails">
+                <div class="gallery-caption">
+                    <h3>Premium Spirits</h3>
+                    <p>Craft cocktail experiences</p>
+                </div>
+            </div>
+            <div class="gallery-item scroll-reveal bounce-in stagger-5">
+                <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80" alt="Festival atmosphere">
+                <div class="gallery-caption">
+                    <h3>Unforgettable Vibes</h3>
+                    <p>Memories that last forever</p>
+                </div>
+            </div>
+            <div class="gallery-item scroll-reveal bounce-in stagger-6">
+                <img src="https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&q=80" alt="Crowd dancing">
+                <div class="gallery-caption">
+                    <h3>Non-Stop Dancing</h3>
+                    <p>All day, all night</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter" id="tickets">
+        <div class="newsletter-content">
+            <h2 class="section-title" style="color: white; margin-bottom: 1rem;">🎟️ Win VIP Four-Pack for 2026!</h2>
+            <p class="section-description" style="color: rgba(255, 255, 255, 0.95); margin-bottom: 2rem;">
+                Sign up now for a chance to win VIP tickets and be the first to hear about 2026 tour announcements.
+            </p>
+            <form class="newsletter-form">
+                <input type="email" class="newsletter-input" placeholder="Enter your email address" required>
+                <button type="submit" class="btn btn-secondary" style="background: white; color: var(--accent-pink); border: none;">
+                    <span>Enter to Win</span>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Partners Section -->
+    <section id="experience">
+        <div class="section-header scroll-reveal">
+            <div class="section-label">Our Partners</div>
+            <h2 class="section-title">Powered by Legends</h2>
+            <p class="section-description">
+                From the spice of Tapatío to the chill of Cayman Jack and the smooth vibes of Patrón — our partners bring the party to life with unforgettable activations and experiences.
+            </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem;">
+            <a href="https://form.typeform.com/to/nHAbJavr" class="btn btn-primary"><span>Partner With Us in 2026</span></a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="social-links">
+                <a href="https://www.facebook.com/SocialHouseEnt/" class="social-link wiggle" aria-label="Facebook" target="_blank">f</a>
+                <a href="https://www.instagram.com/tacosandtequilafestivals/" class="social-link wiggle" aria-label="Instagram" target="_blank">📷</a>
+                <a href="#" class="social-link wiggle" aria-label="Twitter" target="_blank">𝕏</a>
+                <a href="#" class="social-link wiggle" aria-label="TikTok" target="_blank">♪</a>
+            </div>
+            <p style="color: var(--text-gray); margin-bottom: 1rem; font-size: 1.1rem;">
+                Tag us with <span style="color: var(--accent-pink); font-weight: 700;">#TacosAndTequilaFestival</span>
+            </p>
+            <p style="color: var(--text-gray); font-size: 0.9rem; margin-top: 2rem;">
+                © 2025 Tacos & Tequila Festival. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Scroll reveal animation
+        const scrollRevealElements = document.querySelectorAll('.scroll-reveal');
+        
+        const revealOnScroll = () => {
+            const triggerBottom = window.innerHeight * 0.85;
+            
+            scrollRevealElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                
+                if (elementTop < triggerBottom) {
+                    element.classList.add('active');
+                }
+            });
+        };
+
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll(); // Initial check
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Form submission
+        document.querySelector('.newsletter-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.querySelector('.newsletter-input').value;
+            if (email) {
+                alert('🎉 Thanks for entering! We\'ll notify you about 2026 tour dates and your VIP ticket drawing!');
+                document.querySelector('.newsletter-input').value = '';
+            }
+        });
+
+        // Mobile menu toggle
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const navLinks = document.querySelector('.nav-links');
+        
+        mobileMenu.addEventListener('click', () => {
+            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+            if (navLinks.style.display === 'flex') {
+                navLinks.style.position = 'absolute';
+                navLinks.style.top = '100%';
+                navLinks.style.left = '0';
+                navLinks.style.right = '0';
+                navLinks.style.background = 'rgba(10, 10, 10, 0.98)';
+                navLinks.style.flexDirection = 'column';
+                navLinks.style.padding = '2rem';
+                navLinks.style.gap = '1.5rem';
+            }
+        });
+    </script>
+</body>
+</html>
