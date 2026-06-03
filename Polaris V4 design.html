@@ -279,12 +279,12 @@
     <div class="hero">
       <div class="hero-badge"><div class="hero-badge-dot"></div>Production Architecture · us-east-2 (Ohio)</div>
       <h1>Polaris AWS<br><span>Master Reference v2</span></h1>
-      <p class="hero-desc">2 Express backend services (api-user, api-order) · <strong>ECS-on-EC2</strong> · bin-packed tasks on cluster hosts · warm host in 2b for ~40s failover · Multi-AZ everything · GitHub Actions OIDC CI/CD · CloudFormation IaC.<br><span style="color:var(--yellow);font-size:0.75rem;">&#9432; v4 changes: Frontend deferred · EC2+ASG → ECS-on-EC2 · RDS Read Replica also Multi-AZ · per-task SGs via awsvpc</span></p>
+      <p class="hero-desc">Custom Express <strong>api-gateway</strong> (path-routing proxy) · 7 backend services · <strong>ECS-on-EC2</strong> · ECS Service Connect (Cloud Map <code style="font-size:0.78rem;">polaris.local</code>) · bin-packed tasks on cluster hosts · warm host in 2b for ~40s failover · Multi-AZ everything · GitHub Actions OIDC CI/CD · CloudFormation IaC.<br><span style="color:var(--yellow);font-size:0.75rem;">&#9432; v4 changes: Frontend deferred · EC2+ASG → ECS-on-EC2 · api-gateway added as ALB entry point (replaces per-path ALB rules) · RDS Read Replica also Multi-AZ · per-task SGs via awsvpc</span></p>
       <div class="stats">
         <div class="stat"><div class="stat-val" style="color:var(--green)">3</div><div class="stat-label">EC2 Instances</div></div>
         <div class="stat"><div class="stat-val" style="color:var(--blue)">4</div><div class="stat-label">CloudFront Distros</div></div>
-        <div class="stat"><div class="stat-val" style="color:var(--purple)">10</div><div class="stat-label">CF Stacks</div></div>
-        <div class="stat"><div class="stat-val" style="color:var(--orange)">5</div><div class="stat-label">Docker Containers</div></div>
+        <div class="stat"><div class="stat-val" style="color:var(--purple)">11</div><div class="stat-label">CF Stacks</div></div>
+        <div class="stat"><div class="stat-val" style="color:var(--orange)">6</div><div class="stat-label">Docker Containers</div></div>
         <div class="stat"><div class="stat-val" style="color:var(--yellow)">2</div><div class="stat-label">Availability Zones</div></div>
         <div class="stat"><div class="stat-val" style="color:var(--teal)">~$325</div><div class="stat-label">Est. / Month</div></div>
         <div class="stat"><div class="stat-val" style="color:var(--red)">$240K</div><div class="stat-label">Annual Savings vs Legacy</div></div>
@@ -302,9 +302,17 @@
       <div class="farr">→</div>
       <div class="fbox fbox-waf">WAF<sub>OWASP + rate limit</sub></div>
       <div class="farr">→</div>
-      <div class="fbox fbox-alb">ALB<sub>Host+Path routing</sub></div>
+      <div class="fbox fbox-alb">ALB<sub>Host-header → GW</sub></div>
       <div class="farr">→</div>
-      <div class="fbox fbox-fe">EC2 FE / BE<sub>Docker container</sub></div>
+      <div class="fbox" style="background:#0c1a3a;border:1px solid #2563eb;color:#7dd3fc;">API Gateway<sub>:3000 · path routing</sub><sub style="color:#64748b;font-size:0.56rem;">Service Connect proxy</sub></div>
+      <div class="farr">→</div>
+      <div class="fbox fbox-fe">EC2 BE tasks<sub>Docker containers</sub></div>
+      <div class="farr">→</div>
+      <div class="fbox fbox-rds">RDS PostgreSQL<sub>Isolated subnet · w/ Read Replica</sub></div>
+      <div class="farr">→</div>
+      <div class="fbox" style="background:#0c1a3a;border:1px solid #2563eb;color:#7dd3fc;">API Gateway<sub>:3000 · path routing</sub><sub style="color:#64748b;font-size:0.56rem;">Service Connect proxy</sub></div>
+      <div class="farr">→</div>
+      <div class="fbox fbox-fe">EC2 BE tasks<sub>Docker containers</sub></div>
       <div class="farr">→</div>
       <div class="fbox fbox-rds">RDS PostgreSQL<sub>Isolated subnet · w/ Read Replica</sub></div>
     </div>
@@ -322,19 +330,19 @@
     <h3>AWS Services</h3>
     <table class="acro-table">
       <tr><th>Label</th><th>Full Name</th><th>What it is</th><th>Where in Polaris</th></tr>
-      <tr><td>EC2</td><td>Elastic Compute Cloud</td><td>Virtual machine in AWS. Polaris uses EC2 as ECS cluster hosts — Docker runs on EC2, ECS schedules tasks onto the hosts.</td><td>2 instances act as ECS cluster hosts: host #1 (us-east-2a, runs 2 tasks) + host #2 (us-east-2b, warm, 0 tasks). Both t3.medium, both in private subnets.</td></tr>
+      <tr><td>EC2</td><td>Elastic Compute Cloud</td><td>Virtual machine in AWS. Polaris uses EC2 as ECS cluster hosts — Docker runs on EC2, ECS schedules tasks onto the hosts.</td><td>2 instances act as ECS cluster hosts: host #1 (us-east-2a, runs 3 tasks: api-gateway, api-user, api-order) + host #2 (us-east-2b, warm, 0 tasks). Both t3.medium, both in private subnets.</td></tr>
       <tr><td>RDS</td><td>Relational Database Service</td><td>AWS-managed PostgreSQL. Handles patching, backups, Multi-AZ failover automatically.</td><td>PostgreSQL 16, Multi-AZ + Read Replica, db.t3.medium, isolated subnets only</td></tr>
-      <tr><td>ALB</td><td>Application Load Balancer</td><td>Layer-7 HTTP load balancer. Routes by Host header + URL path. Health checks. TLS from CloudFront.</td><td>1 ALB, 5 target groups, host+path rules, public subnet</td></tr>
+      <tr><td>ALB</td><td>Application Load Balancer</td><td>Layer-7 HTTP load balancer. Routes by Host header + URL path. Health checks. TLS from CloudFront.</td><td>1 ALB · single API listener rule (host=api → tg-api-gateway) · 3 FE listener rules · api-gateway handles per-path routing internally</td></tr>
       <tr><td>CF</td><td>CloudFront</td><td>AWS CDN. Terminates TLS at edge PoP. Caches static assets. WAF attaches here. Origin = ALB.</td><td>4 distributions: www, partners, staff, api — one per subdomain</td></tr>
       <tr><td>WAF</td><td>Web Application Firewall</td><td>Sits in front of CloudFront. Inspects every request. Blocks SQLi, XSS, bad bots. Rate limits by IP.</td><td>WebACL on all 4 CF distros. AWS Managed Rules + custom rate limit (2,000 req/IP/5min).</td></tr>
       <tr><td>VPC</td><td>Virtual Private Cloud</td><td>Isolated private network in AWS. All Polaris infra lives inside one VPC.</td><td>CIDR 10.0.0.0/16 (prod). 3 subnet tiers across 2 AZs.</td></tr>
       <tr><td>IGW</td><td>Internet Gateway</td><td>Allows inbound + outbound internet traffic to/from public subnets. Attached to the VPC.</td><td>Public subnet route: <code>0.0.0.0/0 → IGW</code></td></tr>
       <tr><td>NAT GW</td><td>NAT Gateway</td><td>Allows private subnet resources to initiate outbound internet connections only. No inbound.</td><td>2× NAT GW (one per AZ) in public subnets. Private route: <code>0.0.0.0/0 → NAT GW</code>.</td></tr>
-      <tr><td>SG</td><td>Security Group</td><td>Stateful instance-level firewall. Defines ports, protocols, source SGs. Operates at ENI level.</td><td>4 active SGs: alb-sg, fe-ec2-sg, be-ec2-sg, rds-sg. redis-sg reserved for future phase.</td></tr>
+      <tr><td>SG</td><td>Security Group</td><td>Stateful instance-level firewall. Defines ports, protocols, source SGs. Operates at ENI level.</td><td>5 active SGs: alb-sg, api-gateway-task-sg, api-user-task-sg, api-order-task-sg, rds-sg. fe-ec2-sg + redis-sg reserved for future phases.</td></tr>
       <tr><td>ACM</td><td>AWS Certificate Manager</td><td>Managed TLS certificate issuance and auto-renewal. Free for ALB + CloudFront.</td><td>Wildcard <code>*.yourapp.com</code> in us-east-1 (required for CF). Regional cert in us-east-2 for ALB.</td></tr>
       <tr><td>R53</td><td>Route 53</td><td>AWS DNS. Alias records (A ALIAS) point domains to CF distributions. No TTL issue with Alias.</td><td>4 Alias records: www→CF#1, partners→CF#2, staff→CF#3, api→CF#4</td></tr>
-      <tr><td>ECR</td><td>Elastic Container Registry</td><td>Private Docker image registry in AWS. GHA pushes; EC2 pulls at deploy time.</td><td>3 repos: <code>polaris/fe</code>, <code>polaris/api-user</code>, <code>polaris/api-order</code></td></tr>
-      <tr><td>ECS</td><td>Elastic Container Service</td><td>Container orchestrator. Polaris uses ECS-on-EC2 launch type — Fargate not used. ECS schedules tasks (containers) onto EC2 cluster hosts with awsvpc network mode (each task gets own ENI + SG).</td><td>1 cluster (<code>polaris-prod</code>), 2 services (api-user, api-order). Cluster ASG manages cluster hosts. CodeDeploy ECS for blue/green deploys.</td></tr>
+      <tr><td>ECR</td><td>Elastic Container Registry</td><td>Private Docker image registry in AWS. GHA pushes; EC2 pulls at deploy time.</td><td>4 repos: <code>polaris/fe</code>, <code>polaris/api-user</code>, <code>polaris/api-order</code>, <code>polaris/api-gateway</code></td></tr>
+      <tr><td>ECS</td><td>Elastic Container Service</td><td>Container orchestrator. Polaris uses ECS-on-EC2 launch type — Fargate not used. ECS schedules tasks (containers) onto EC2 cluster hosts with awsvpc network mode (each task gets own ENI + SG).</td><td>1 cluster (<code>polaris-prod</code>), 3 services (api-gateway, api-user, api-order). ECS Service Connect (Cloud Map <code>polaris.local</code>) for internal DNS. Cluster ASG manages cluster hosts. CodeDeploy ECS for blue/green deploys.</td></tr>
       <tr><td>S3</td><td>Simple Storage Service</td><td>Object store. Unlimited scale. 11-9s durability. Accessed via bucket + object key.</td><td><code>polaris-prod-uploads</code> (private docs), <code>polaris-prod-static</code> (CF origin, Next.js assets)</td></tr>
       <tr><td>IAM</td><td>Identity and Access Management</td><td>AWS permission system. Roles on EC2 define what those instances can do. GHA assumes a role via OIDC.</td><td>EC2 Instance Profile, GHA Deploy Role</td></tr>
       <tr><td>OIDC</td><td>OpenID Connect</td><td>Identity federation protocol. GHA uses OIDC to assume an AWS IAM role without long-lived keys. AWS verifies the JWT issued by GitHub's IDP.</td><td>IAM OIDC Provider: <code>token.actions.githubusercontent.com</code>. Condition: repo + branch.</td></tr>
@@ -350,14 +358,17 @@
       <tr><td>LCU</td><td>Load Balancer Capacity Unit</td><td>ALB billing unit: new connections/sec, active connections, bytes, rule evaluations.</td><td>Billed per LCU-hour on top of fixed ALB hourly rate (~$0.008/LCU-hour)</td></tr>
       <tr><td>EIP</td><td>Elastic IP Address</td><td>Fixed public IP address. Attached to NAT Gateways so private subnets have a consistent outbound IP.</td><td>1 EIP per NAT Gateway (2 total). Used as stable outbound IP for allow-listing at Stripe/Postmark.</td></tr>
       <tr><td>Multi-AZ</td><td>Multi-Availability Zone (RDS)</td><td>RDS keeps a synchronous standby replica in AZ-b. Failover automatic (~60–120s). Same DNS endpoint. The standby is NOT used for reads — only for failover.</td><td>RDS PostgreSQL 16 with standby in AZ-b (failover) + dedicated Read Replica for read offloading. Two separate endpoints: writer and reader.</td></tr>
+      <tr><td>Service Connect</td><td>ECS Service Connect</td><td>AWS feature that wires ECS services together using Cloud Map DNS. Each service gets a stable internal hostname (e.g., <code>api-user.polaris.local:8008</code>) resolved by Cloud Map. Eliminates hardcoded IPs; handles task replacement transparently.</td><td>Namespace <code>polaris.local</code> — api-gateway resolves backend services by name. Created in polaris-gateway CF stack.</td></tr>
+      <tr><td>Cloud Map</td><td>AWS Cloud Map</td><td>AWS service discovery. Maintains a registry of service instances (task ENI IPs). ECS registers/deregisters tasks automatically on start/stop. Service Connect consumes Cloud Map DNS under the hood.</td><td>Namespace: <code>polaris.local</code>. 3 service entries: <code>api-user.polaris.local</code>, <code>api-order.polaris.local</code>, etc.</td></tr>
     </table>
 
     <h3 style="margin-top:20px">Application / Software Labels</h3>
     <table class="acro-table">
       <tr><th>Label</th><th>Full Name</th><th>What it is</th><th>Where in Polaris</th></tr>
+      <tr><td>api-gateway</td><td>Polaris API Gateway</td><td>Custom Express-based reverse proxy. Reads <code>gateway.config.json</code> route table; matches path prefixes against 7 services in <code>route_order</code>; rewrites paths via <code>buildPathRewrite()</code>; proxies via ECS Service Connect (http-proxy-middleware). Single ALB entry point. Handles webhook passthrough (no JWT) and internal-only outbound proxy routes.</td><td>ECS task on cluster host, :3000. ALB tg-api-gateway. polaris-gateway CF stack.</td></tr>
       <tr><td>GHA</td><td>GitHub Actions</td><td>CI/CD automation built into GitHub. Triggered by git events. Runs on GHA-hosted Ubuntu runners.</td><td>3 workflow files: <code>deploy-be.yml</code>, <code>deploy-fe.yml</code>, <code>ci.yml</code></td></tr>
       <tr><td>FE</td><td>Frontend</td><td>The 3 Next.js 15 web applications (App Router). Served via Caddy on EC2 #1.</td><td><code>customer-marketing</code> :3000, <code>partner-portal</code> :3001, <code>staff-partner-settings</code> :3002</td></tr>
-      <tr><td>BE</td><td>Backend</td><td>The 2 Express + TypeScript API services. Raw SQL via <code>pg</code> driver. No ORM.</td><td><code>api-user</code> :8008 (EC2 #2), <code>api-order</code> :8009 (EC2 #3)</td></tr>
+      <tr><td>BE</td><td>Backend</td><td>The Express + TypeScript API services. Raw SQL via <code>pg</code> driver. No ORM. All traffic enters via api-gateway proxy.</td><td><code>api-user</code> :8008, <code>api-order</code> :8009 (+ api-gateway :3000 proxy, api-payment, api-partner, api-master, api-integration)</td></tr>
       <tr><td>Caddy</td><td>Caddy Web Server</td><td>HTTP/2 reverse proxy. Runs as a Docker container on FE EC2. Handles security headers.</td><td>Listens :3000/:3001/:3002 → proxies to corresponding Next.js containers</td></tr>
       <tr><td>Redis</td><td>Remote Dictionary Server</td><td>In-memory key-value store. Sub-millisecond reads. Used for sessions, rate limits, locks, cache.</td><td><span style="color:var(--yellow);font-weight:700;">⏸ DEFERRED — Future Phase.</span> Planned: ElastiCache Redis 7.x, cache.t3.micro + 1 replica, isolated subnet, TLS + AUTH token. Add when BullMQ background jobs or session caching is required.</td></tr>
       <tr><td>pg</td><td>node-postgres</td><td>Node.js PostgreSQL client. All queries use parameterized placeholders ($1, $2…). No ORM.</td><td><code>@polaris/db</code> package. Shared pool imported by both api-user and api-order.</td></tr>
@@ -383,7 +394,7 @@
   <div class="wrap">
     <div class="section-label">Network</div>
     <div class="section-title">VPC Topology</div>
-    <div class="section-sub">All traffic stays inside the VPC. Only ALB and CloudFront face the internet. Isolated subnets have zero internet route. <strong>Regional services (S3, Secrets Manager, KMS) are not zonal</strong> — AWS replicates them across multiple AZs in us-east-2 and exposes one regional endpoint. They are shown below the VPC in a dedicated band, not inside any AZ. <span class="chip" style="background:#0c1a2a;color:#93c5fd;border:1px solid #2563eb;font-size:0.6rem;">ECS-on-EC2 + warm-host cold standby</span> — 2 backend services (api-user, api-order) run as bin-packed ECS tasks on one cluster host in 2a. A second warm cluster host in 2b runs 0 tasks at steady state — image cached, ready to receive tasks within ~40–60s on AZ-a failure.</div>
+    <div class="section-sub">All traffic stays inside the VPC. Only ALB and CloudFront face the internet. Isolated subnets have zero internet route. <strong>Regional services (S3, Secrets Manager, KMS) are not zonal</strong> — AWS replicates them across multiple AZs in us-east-2 and exposes one regional endpoint. They are shown below the VPC in a dedicated band, not inside any AZ. <span class="chip" style="background:#0c1a2a;color:#93c5fd;border:1px solid #2563eb;font-size:0.6rem;">ECS-on-EC2 + warm-host cold standby</span> — api-gateway + 2 backend services (api-user, api-order) run as bin-packed ECS tasks on one cluster host in 2a. A second warm cluster host in 2b runs 0 tasks at steady state — image cached, ready to receive tasks within ~40–60s on AZ-a failure.</div>
 
     <div style="margin-bottom:12px;">
       <div style="font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;">External / Internet</div>
@@ -431,7 +442,7 @@
       <!-- PRIVATE -->
       <!-- ECS CLUSTER ENVELOPE (spans both private subnets) -->
       <div style="margin:8px 0 4px 0;padding:6px 10px;background:#0c1a2a;border:1px dashed #2563eb;border-radius:6px;font-size:0.66rem;color:#93c5fd;">
-        <strong style="color:#dbeafe;">ECS Cluster · polaris-prod</strong> — EC2 launch type · awsvpc network mode · cluster ASG spans both private subnets · 2 ECS services (api-user, api-order) with task definitions reserving 512 CPU + 1024 MB each · ALB target type <code>ip</code> registers task ENIs directly · CodeDeploy ECS blue/green for rolling deploys
+        <strong style="color:#dbeafe;">ECS Cluster · polaris-prod</strong> — EC2 launch type · awsvpc network mode · cluster ASG spans both private subnets · 3 ECS services (api-gateway, api-user, api-order) · ECS Service Connect + Cloud Map namespace <code>polaris.local</code> · api-gateway proxies all requests to backend services via Service Connect DNS · ALB target type <code>ip</code> registers api-gateway task ENI directly · CodeDeploy ECS blue/green for rolling deploys
       </div>
 
       <div class="az-row">
@@ -442,7 +453,8 @@
             <div class="box" style="background:#0a1428;border:1.5px solid #2563eb;color:#93c5fd;font-size:0.68rem;padding:6px 8px;text-align:left;"><strong style="color:#dbeafe;">EC2 cluster host #1 · t3.medium</strong><sub style="color:#7dd3fc;">2048 CPU / 4096 MB · ECS agent registered · capacity provider target 75%</sub></div>
             <div class="box box-be" style="margin-left:14px;">ECS task: api-user <span class="chip" style="background:#0c1a2a;color:#93c5fd;border:1px solid #2563eb;font-size:0.55rem;">512 CPU / 1024 MB</span><sub>Express · Docker · own ENI in 10.0.10.0/24</sub><sub><span class="port-tag port-blue">:8008</span></sub></div>
             <div class="box box-be" style="margin-left:14px;">ECS task: api-order <span class="chip" style="background:#0c1a2a;color:#93c5fd;border:1px solid #2563eb;font-size:0.55rem;">512 CPU / 1024 MB</span><sub>Express · Docker · own ENI</sub><sub><span class="port-tag port-blue">:8009</span></sub></div>
-            <div class="box" style="background:#1a1a1a;border:1px dashed #334155;color:#94a3b8;font-size:0.6rem;text-align:left;">Host packed: 1024 / 2048 CPU · 2048 / 4096 MB · ~50% headroom · scale 2nd host when cluster util &gt; 75%</div>
+            <div class="box box-be" style="margin-left:14px;">ECS task: api-gateway <span class="chip" style="background:#0c1a2a;color:#93c5fd;border:1px solid #2563eb;font-size:0.55rem;">512 CPU / 1024 MB</span><sub>Express proxy · http-proxy-middleware · Service Connect · own ENI</sub><sub><span class="port-tag port-blue">:3000</span></sub></div>
+            <div class="box" style="background:#1a1a1a;border:1px dashed #334155;color:#94a3b8;font-size:0.6rem;text-align:left;">Host packed: 1536 / 2048 CPU · 3072 / 4096 MB · ~25% headroom · scale 2nd host when cluster util &gt; 75%</div>
           </div>
         </div>
         <div class="subnet subnet-priv">
@@ -544,8 +556,7 @@
         <div class="sg-name">alb-sg — Application Load Balancer</div>
         <div class="sg-rule"><span class="sg-in">IN</span> TCP <span class="port">:80</span> from <code>0.0.0.0/0</code> — HTTP (redirects to HTTPS)</div>
         <div class="sg-rule"><span class="sg-in">IN</span> TCP <span class="port">:443</span> from <code>CloudFront managed prefix list</code> — HTTPS from CF only</div>
-        <div class="sg-rule"><span class="sg-out">OUT</span> TCP <span class="port">:8008</span> to <code>api-user-task-sg</code> (task ENI)</div>
-        <div class="sg-rule"><span class="sg-out">OUT</span> TCP <span class="port">:8009</span> to <code>api-order-task-sg</code> (task ENI)</div>
+        <div class="sg-rule"><span class="sg-out">OUT</span> TCP <span class="port">:3000</span> to <code>api-gateway-task-sg</code> (task ENI — single gateway entry point)</div>
         <div class="sg-rule" style="opacity:0.4;"><span class="sg-out">OUT</span> TCP <span class="port">:3000-3002</span> to <code>fe-task-sg</code> — <em>FE deferred</em></div>
       </div>
       <div class="sg-card">
@@ -555,15 +566,22 @@
         <div class="sg-rule"><span class="sg-out">OUT</span> TCP <span class="port">:80</span> to <code>0.0.0.0/0</code> via NAT (S3 via Gateway Endpoint actually bypasses)</div>
       </div>
       <div class="sg-card">
+        <div class="sg-name">api-gateway-task-sg — api-gateway ECS task ENI</div>
+        <div class="sg-rule"><span class="sg-in">IN</span> TCP <span class="port">:3000</span> from <code>alb-sg</code></div>
+        <div class="sg-rule"><span class="sg-out">OUT</span> TCP <span class="port">:8008</span> to <code>api-user-task-sg</code> (Service Connect · <code>api-user.polaris.local</code>)</div>
+        <div class="sg-rule"><span class="sg-out">OUT</span> TCP <span class="port">:8009</span> to <code>api-order-task-sg</code> (Service Connect · <code>api-order.polaris.local</code>)</div>
+        <div class="sg-rule"><span class="sg-out">OUT</span> TCP <span class="port">:443</span> to <code>0.0.0.0/0</code> via NAT (Secrets Manager fetch, Sentry, outbound proxy: /proxy/stripe, /proxy/anthropic, /proxy/postmark)</div>
+      </div>
+      <div class="sg-card">
         <div class="sg-name">api-user-task-sg — api-user ECS task ENI</div>
-        <div class="sg-rule"><span class="sg-in">IN</span> TCP <span class="port">:8008</span> from <code>alb-sg</code></div>
+        <div class="sg-rule"><span class="sg-in">IN</span> TCP <span class="port">:8008</span> from <code>api-gateway-task-sg</code> (Service Connect)</div>
         <div class="sg-rule"><span class="sg-out">OUT</span> TCP <span class="port">:5432</span> to <code>rds-sg</code></div>
         <div class="sg-rule"><span class="sg-out">OUT</span> TCP <span class="port">:443</span> to <code>0.0.0.0/0</code> via NAT (Secrets Manager fetch at task start, Postmark, Sentry)</div>
         <div class="sg-rule" style="opacity:0.4;"><span class="sg-out">OUT</span> TCP <span class="port">:6379</span> to <code>redis-sg</code> — <em>deferred</em></div>
       </div>
       <div class="sg-card">
         <div class="sg-name">api-order-task-sg — api-order ECS task ENI</div>
-        <div class="sg-rule"><span class="sg-in">IN</span> TCP <span class="port">:8009</span> from <code>alb-sg</code></div>
+        <div class="sg-rule"><span class="sg-in">IN</span> TCP <span class="port">:8009</span> from <code>api-gateway-task-sg</code> (Service Connect)</div>
         <div class="sg-rule"><span class="sg-out">OUT</span> TCP <span class="port">:5432</span> to <code>rds-sg</code></div>
         <div class="sg-rule"><span class="sg-out">OUT</span> TCP <span class="port">:443</span> to <code>0.0.0.0/0</code> via NAT (Secrets Manager, Stripe, Postmark, Anthropic, Sentry)</div>
         <div class="sg-rule" style="opacity:0.4;"><span class="sg-out">OUT</span> TCP <span class="port">:6379</span> to <code>redis-sg</code> — <em>deferred</em></div>
@@ -600,7 +618,7 @@
   <div class="wrap">
     <div class="section-label">User Journey</div>
     <div class="section-title">Request Flow — Browser to Database</div>
-    <div class="section-sub">Every hop annotated. 8 steps from browser to database and back. <span class="chip" style="background:#0c1a2a;color:#93c5fd;border:1px solid #2563eb;font-size:0.6rem;">ECS-on-EC2</span> · ALB target type <code>ip</code> registers each ECS task's ENI directly (not the cluster host). FE deferred — only API path active.</div>
+    <div class="section-sub">Every hop annotated. 9 steps from browser to database and back. <span class="chip" style="background:#0c1a2a;color:#93c5fd;border:1px solid #2563eb;font-size:0.6rem;">ECS-on-EC2</span> · ALB routes all API traffic to <strong>api-gateway</strong> task (host-header condition) · gateway proxies to backend services via <strong>ECS Service Connect</strong> (<code>polaris.local</code> Cloud Map DNS). FE deferred — only API path active.</div>
     <div class="two-col">
       <div>
         <div class="flow-timeline">
@@ -623,9 +641,9 @@
           <div class="flow-step">
             <div class="flow-node fn-purple">3</div>
             <div class="flow-body">
-              <div class="flow-title" style="color:var(--purple)">ALB — Listener Rule Evaluation</div>
-              <div class="flow-detail">ALB has one HTTPS listener (port 443). Rules evaluated in priority order. Receives request with <code>Host: api.yourapp.com</code> header (preserved by CF). Path <code>/api/v1/users*</code> matches → forwards to <strong>tg-api-user</strong> (target type <code>ip</code>) → ECS task ENI :8008. Path <code>/api/v1/orders*</code> → <strong>tg-api-order</strong> → ECS task ENI :8009. ALB SG only accepts traffic from CloudFront managed prefix list. FE host rules (tg-fe-3000/3001/3002) deferred.</div>
-              <div class="flow-tags"><span class="ftag ftag-purple">Path → tg-api-user / tg-api-order</span><span class="ftag ftag-blue">Public subnet · ACM cert</span><span class="ftag ftag-blue">target type: ip (task ENIs)</span></div>
+              <div class="flow-title" style="color:var(--purple)">ALB — Listener Rule Evaluation → api-gateway</div>
+              <div class="flow-detail">ALB has one HTTPS listener (port 443). Rules evaluated in priority order. Receives request with <code>Host: api.yourapp.com</code> header (preserved by CF). <strong>Priority 1:</strong> Host=api.yourapp.com matches → forwards to <strong>tg-api-gateway</strong> (target type <code>ip</code>) → api-gateway task ENI :3000. The gateway handles all per-path routing internally via <code>gateway.config.json</code> — ALB no longer does per-service path routing. ALB SG only accepts traffic from CloudFront managed prefix list. FE host rules (tg-fe-3000/3001/3002) deferred.</div>
+              <div class="flow-tags"><span class="ftag ftag-purple">Host: api → tg-api-gateway :3000</span><span class="ftag ftag-blue">Public subnet · ACM cert</span><span class="ftag ftag-blue">target type: ip (gateway ENI)</span></div>
             </div>
           </div>
           <div class="flow-step" style="opacity:0.45;">
@@ -639,9 +657,9 @@
           <div class="flow-step">
             <div class="flow-node fn-blue">5</div>
             <div class="flow-body">
-              <div class="flow-title" style="color:var(--blue)">ALB → ECS task ENI (api-user / api-order)</div>
-              <div class="flow-detail">Browser JS calls <code>api.yourapp.com/api/v1/orders</code>. CF → ALB → path rule <code>/api/v1/orders*</code> → target group <code>tg-api-order</code>. Target type <code>ip</code> — ALB connects directly to the ECS task's ENI private IP (e.g. <code>10.0.10.45:8009</code>), bypassing the cluster host. Express middleware verifies JWT before controller runs. Task lives on cluster host #1 in 2a; on AZ-a failure, scheduler places replacement on warm host #2 in 2b within ~40s.</div>
-              <div class="flow-tags"><span class="ftag ftag-blue">tg-api-order · target type ip</span><span class="ftag ftag-blue">Task ENI :8009</span><span class="ftag ftag-blue">JWT verified by middleware</span></div>
+              <div class="flow-title" style="color:var(--blue)">api-gateway task → Service Connect → backend ECS task</div>
+              <div class="flow-detail">api-gateway task receives the request on :3000. It reads its <code>gateway.config.json</code> route table — matches the path prefix against 7 services in <code>route_order</code> (api-admin, api-user, api-order, api-partner, api-payment, api-master, api-integration) — rewrites the path to the internal Express path (e.g. <code>/users/:id</code> → <code>/api/v1/users/:id</code>) — then proxies via <strong>ECS Service Connect</strong>: Cloud Map <code>polaris.local</code> resolves <code>api-user.polaris.local:8008</code> → backend task ENI IP. <code>http-proxy-middleware</code> forwards request headers. Backend Express verifies JWT before controller runs. <strong>Webhook passthrough:</strong> <code>POST /webhooks/stripe</code> → api-payment:8005, no JWT, HMAC-verified by api-payment. <strong>Third-party proxy:</strong> <code>/proxy/stripe</code>, <code>/proxy/anthropic</code> etc. → outbound via NAT.</div>
+              <div class="flow-tags"><span class="ftag ftag-blue">Service Connect · polaris.local DNS</span><span class="ftag ftag-blue">Path rewrite via buildPathRewrite()</span><span class="ftag ftag-orange">7 services in route_order</span><span class="ftag ftag-green">Stripe webhook bypass (no JWT)</span></div>
             </div>
           </div>
           <div class="flow-step">
@@ -897,14 +915,15 @@
   <div class="wrap">
     <div class="section-label">Compute</div>
     <div class="section-title">EC2 Instances — What Runs Where</div>
-    <div class="section-sub">2 EC2 instances act as <strong>ECS cluster hosts</strong>. AZ-a host runs 2 bin-packed ECS tasks (api-user, api-order). AZ-b host runs warm with <strong>0 tasks at steady state</strong> — image cached, ready to receive tasks within ~40–60s on AZ-a failure. Cluster ASG scales hosts when capacity provider utilization passes 75%. Frontend deferred for now.</div>
+    <div class="section-sub">2 EC2 instances act as <strong>ECS cluster hosts</strong>. AZ-a host runs 3 bin-packed ECS tasks (api-gateway, api-user, api-order). AZ-b host runs warm with <strong>0 tasks at steady state</strong> — image cached, ready to receive tasks within ~40–60s on AZ-a failure. Cluster ASG scales hosts when capacity provider utilization passes 75%. Frontend deferred for now.</div>
 
     <div class="two-col" style="margin-bottom:10px;">
       <div class="card">
         <div class="card-title" style="color:#93c5fd">EC2 cluster host #1 — us-east-2a (t3.medium)</div>
         <div class="card-body">
-          <strong style="color:#e2e8f0">Capacity:</strong> 2048 CPU units · 4096 MB · packed 1024/2048 CPU + 2048/4096 MB (~50% headroom)<br><br>
+          <strong style="color:#e2e8f0">Capacity:</strong> 2048 CPU units · 4096 MB · packed 1536/2048 CPU + 3072/4096 MB (~25% headroom)<br><br>
           <strong style="color:#e2e8f0">ECS tasks running (each 512 CPU / 1024 MB):</strong><br>
+          <span class="chip chip-blue">api-gateway task</span> Express proxy :3000 · Service Connect<br>
           <span class="chip chip-blue">api-user task</span> Express :8008<br>
           <span class="chip chip-blue">api-order task</span> Express :8009<br><br>
           <strong style="color:#e2e8f0">Each task gets own ENI (awsvpc mode)</strong> — own private IP, own SG, registered as ALB <code>ip</code>-type target.<br><br>
@@ -939,7 +958,7 @@
       <tr><th>Component</th><th>Config</th></tr>
       <tr><td><strong>ECS cluster</strong></td><td><code>polaris-prod</code> · EC2 launch type · awsvpc network mode</td></tr>
       <tr><td><strong>Cluster ASG</strong></td><td><code>desired=2, min=2, max=6</code> · spans both private subnets · capacity provider target utilization 75%</td></tr>
-      <tr><td><strong>ECS services</strong></td><td>2 services (api-user, api-order) · each <code>desired=1, min=1, max=3</code> · task definition reserves 512 CPU + 1024 MB</td></tr>
+      <tr><td><strong>ECS services</strong></td><td>3 services (api-gateway, api-user, api-order) · each <code>desired=1, min=1, max=3</code> · task definition reserves 512 CPU + 1024 MB · api-gateway uses ECS Service Connect + Cloud Map <code>polaris.local</code></td></tr>
       <tr><td><strong>Task placement strategy</strong></td><td><code>spread by attribute:ecs.availability-zone</code> for HA + <code>binpack on memory</code> for density</td></tr>
       <tr><td><strong>ALB target group</strong></td><td>Type <code>ip</code> · registers task ENI IPs · health check <code>/healthz</code> · deregistration_delay 30s</td></tr>
       <tr><td><strong>Failure detection</strong></td><td>ALB drops unhealthy targets in ~30s · ECS detects host disconnect in ~30s</td></tr>
@@ -950,10 +969,10 @@
     <h3>Failover Sequence (AZ-a down)</h3>
     <table>
       <tr><th>t+</th><th>Event</th></tr>
-      <tr><td>00:00</td><td>AZ-a fails. 2 tasks unreachable.</td></tr>
+      <tr><td>00:00</td><td>AZ-a fails. 3 tasks unreachable.</td></tr>
       <tr><td>00:30</td><td>ALB marks 2a targets unhealthy (3 × ~10s), drops from rotation. <strong>5xx errors begin.</strong></td></tr>
       <tr><td>00:30</td><td>ECS scheduler detects host disconnect → tasks marked STOPPED.</td></tr>
-      <tr><td>00:40</td><td>Scheduler places 2 replacement tasks on host #2 (warm 2b).</td></tr>
+      <tr><td>00:40</td><td>Scheduler places 3 replacement tasks on host #2 (warm 2b).</td></tr>
       <tr><td>00:45</td><td>Docker run from local image cache.</td></tr>
       <tr><td>00:55</td><td>Containers up, <code>/healthz</code> responds.</td></tr>
       <tr><td>01:10</td><td>ALB health checks pass on new task IPs.</td></tr>
@@ -983,7 +1002,7 @@
     <h3>Why ECS-on-EC2 (vs Plain EC2 + ASG)</h3>
     <table>
       <tr><th>ECS win</th><th>Mechanism</th><th>Benefit for Polaris</th></tr>
-      <tr><td>Bin-packing (2 services / 1 host)</td><td>awsvpc per-task ENI + scheduler resource pool + ALB target type <code>ip</code></td><td>1 host runs 2 services instead of needing 2 hosts. ~$50/mo saved at minimum scale.</td></tr>
+      <tr><td>Bin-packing (3 services / 1 host)</td><td>awsvpc per-task ENI + scheduler resource pool + ALB target type <code>ip</code></td><td>1 host runs 3 services instead of needing 3 hosts. ~$100/mo saved at minimum scale.</td></tr>
       <tr><td>Fast failover from warm host</td><td>Image cached on host; task spawn = <code>docker run</code> + ALB health only</td><td>~40s RTO from warm host vs ~2–4 min EC2+ASG cold start.</td></tr>
       <tr><td>Faster rolling deploys</td><td>Task replacement (~30–60s/service) vs ASG instance refresh (~5–10 min/service)</td><td>Deploy 2 services in ~1–2 min vs ~10–20 min.</td></tr>
       <tr><td>Native blue/green</td><td>CodeDeploy ECS deployment type with atomic target group swap</td><td>Instant rollback. No DIY weighted-target-group scripts.</td></tr>
@@ -1012,30 +1031,44 @@
   <div class="wrap">
     <div class="section-label">DNS + Load Balancing</div>
     <div class="section-title">URL → Service Routing</div>
-    <div class="section-sub">Full chain: DNS → CF → WAF → ALB → ECS task. <span class="chip" style="background:#1a1a0a;color:#fde68a;border:1px solid #ca8a04;font-size:0.6rem;">FE deferred</span> — only the API distro + target groups are active. The 3 FE domains, 3 CloudFront distros, and FE target groups (tg-fe-3000/3001/3002) below describe the planned routing for when Frontend returns.</div>
+    <div class="section-sub">Full chain: DNS → CF → WAF → ALB → <strong>api-gateway</strong> → Service Connect → ECS task. <span class="chip" style="background:#1a1a0a;color:#fde68a;border:1px solid #ca8a04;font-size:0.6rem;">FE deferred</span> — only the API distro + target groups are active. ALB has a single API rule (host-header → tg-api-gateway); per-path routing is handled internally by api-gateway via <code>gateway.config.json</code>. The 3 FE domains, 3 CloudFront distros, and FE target groups (tg-fe-3000/3001/3002) below describe the planned routing for when Frontend returns.</div>
 
     <table>
       <tr><th>Domain</th><th>R53 Alias</th><th>CF Dist</th><th>WAF</th><th>ALB Rule</th><th>Target Group</th><th>EC2 Port</th><th>Container</th><th>App</th></tr>
       <tr><td><code>www.yourapp.com</code></td><td>CF#1</td><td>CF#1</td><td>WebACL#1</td><td>Host: www.yourapp.com</td><td>tg-fe-3000</td><td><span class="port">:3000</span></td><td>customer-marketing</td><td>Public B2C + marketing</td></tr>
       <tr><td><code>partners.yourapp.com</code></td><td>CF#2</td><td>CF#2</td><td>WebACL#2</td><td>Host: partners.yourapp.com</td><td>tg-fe-3001</td><td><span class="port">:3001</span></td><td>partner-portal</td><td>Universities, law firms, health boards</td></tr>
       <tr><td><code>staff.yourapp.com</code></td><td>CF#3</td><td>CF#3</td><td>WebACL#3 (stricter)</td><td>Host: staff.yourapp.com</td><td>tg-fe-3002</td><td><span class="port">:3002</span></td><td>staff-partner-settings</td><td>Internal IEE staff only</td></tr>
-      <tr><td><code>api.yourapp.com/api/v1/users/*</code></td><td>CF#4</td><td>CF#4</td><td>WebACL#4 (strictest)</td><td>Host: api + Path /users/* /auth*</td><td>tg-api-user</td><td><span class="port">:8008</span></td><td>api-user</td><td>JWT auth · user CRUD</td></tr>
-      <tr><td><code>api.yourapp.com/api/v1/orders/*</code></td><td>CF#4</td><td>CF#4</td><td>WebACL#4</td><td>Host: api + Path /orders*</td><td>tg-api-order</td><td><span class="port">:8009</span></td><td>api-order</td><td>Orders · Document processing</td></tr>
+      <tr><td><code>api.yourapp.com/*</code></td><td>CF#4</td><td>CF#4</td><td>WebACL#4 (strictest)</td><td>Host: api.yourapp.com (all paths)</td><td>tg-api-gateway</td><td><span class="port">:3000</span></td><td>api-gateway</td><td>Express proxy — routes internally to api-user :8008, api-order :8009, etc. via Service Connect</td></tr>
     </table>
 
     <h3>ALB Listener Rules — Priority Order</h3>
 <pre><span class="c"># ALB HTTPS Listener (port 443) — rules evaluated top to bottom</span>
+<span class="c"># Per-path routing is NO LONGER done at ALB. A single host-header rule sends ALL</span>
+<span class="c"># API traffic to api-gateway; the gateway handles path routing internally.</span>
 
-<span class="k">Priority 1:</span>  Host=api.yourapp.com AND Path=/api/v1/users/*   → tg-api-user  (<span class="port">:8008</span>)
-<span class="k">Priority 2:</span>  Host=api.yourapp.com AND Path=/api/v1/orders/*  → tg-api-order (<span class="port">:8009</span>)
-<span class="k">Priority 3:</span>  Host=api.yourapp.com AND Path=/healthz          → tg-api-user  (<span class="port">:8008</span>)
-<span class="k">Priority 4:</span>  Host=partners.yourapp.com                       → tg-fe-3001   (<span class="port">:3001</span>)
-<span class="k">Priority 5:</span>  Host=staff.yourapp.com                          → tg-fe-3002   (<span class="port">:3002</span>)
-<span class="k">Priority 6:</span>  Host=www.yourapp.com                            → tg-fe-3000   (<span class="port">:3000</span>)
+<span class="k">Priority 1:</span>  Host=api.yourapp.com                            → tg-api-gateway (<span class="port">:3000</span>) <span class="c"># ALL API traffic — gateway routes internally</span>
+<span class="k">Priority 2:</span>  Host=partners.yourapp.com                       → tg-fe-3001   (<span class="port">:3001</span>)
+<span class="k">Priority 3:</span>  Host=staff.yourapp.com                          → tg-fe-3002   (<span class="port">:3002</span>)
+<span class="k">Priority 4:</span>  Host=www.yourapp.com                            → tg-fe-3000   (<span class="port">:3000</span>)
 <span class="k">Default:</span>     Fixed 404 response
 
 <span class="c"># ALB HTTP Listener (port 80)</span>
 <span class="k">Default:</span>     Redirect → HTTPS 301</pre>
+
+    <h3>api-gateway Internal Path Routing (gateway.config.json)</h3>
+    <p style="color:#cbd5e1;font-size:0.82rem;">After ALB forwards to api-gateway :3000, the gateway matches path prefixes against <code>route_order</code> and proxies via ECS Service Connect.</p>
+    <table>
+      <tr><th>Public path prefix</th><th>Target service</th><th>Service Connect DNS</th><th>Port</th><th>Notes</th></tr>
+      <tr><td><code>/api/v1/admin/*</code></td><td>api-admin</td><td><code>api-admin.polaris.local</code></td><td><span class="port">:8007</span></td><td>Admin domain</td></tr>
+      <tr><td><code>/api/v1/users/*</code> · <code>/api/v1/unauth/auth/*</code></td><td>api-user</td><td><code>api-user.polaris.local</code></td><td><span class="port">:8008</span></td><td>JWT auth · user CRUD</td></tr>
+      <tr><td><code>/api/v1/orders/*</code></td><td>api-order</td><td><code>api-order.polaris.local</code></td><td><span class="port">:8009</span></td><td>Orders · document processing</td></tr>
+      <tr><td><code>/api/v1/partners/*</code></td><td>api-partner</td><td><code>api-partner.polaris.local</code></td><td><span class="port">:8010</span></td><td>Partner portal backend</td></tr>
+      <tr><td><code>/api/v1/payments/*</code></td><td>api-payment</td><td><code>api-payment.polaris.local</code></td><td><span class="port">:8005</span></td><td>Stripe intents · webhook passthrough (no JWT)</td></tr>
+      <tr><td><code>/api/v1/master/*</code></td><td>api-master</td><td><code>api-master.polaris.local</code></td><td><span class="port">:8011</span></td><td>Reference data lookups</td></tr>
+      <tr><td><code>/api/v1/integrations/*</code></td><td>api-integration</td><td><code>api-integration.polaris.local</code></td><td><span class="port">:8012</span></td><td>External integrations</td></tr>
+      <tr><td><code>/webhooks/stripe</code></td><td>api-payment (passthrough)</td><td><code>api-payment.polaris.local</code></td><td><span class="port">:8005</span></td><td>No JWT · HMAC-verified by api-payment</td></tr>
+      <tr><td><code>/proxy/stripe</code> · <code>/proxy/anthropic</code> · <code>/proxy/postmark</code></td><td>Outbound via NAT</td><td>—</td><td><span class="port">:443</span></td><td>Internal-IP-only check enforced by gateway</td></tr>
+    </table>
 
     <h3>Caddyfile on FE EC2 (production)</h3>
 <pre><span class="c"># TLS NOT handled here — CloudFront + ACM terminate TLS.</span>
@@ -1250,17 +1283,17 @@
   Bucket: <span class="s">'polaris-prod-uploads'</span>,
   Key: key, ContentType: <span class="s">'application/pdf'</span>,
   Expires: <span class="hl">900</span>,  <span class="c">// 15 minutes</span>
-});</pre></div></div></div>
+});</pre></div></div>
           <div class="step"><div class="step-num" style="background:#065f46;color:#34d399">3</div><div class="step-body"><div class="step-title">api-order → Browser: 200 { uploadUrl, key }</div><div class="step-detail">Returns the presigned URL + object key (to store in DB after upload confirms).</div></div></div>
           <div class="step"><div class="step-num" style="background:#d97706;color:#fff">4</div><div class="step-body"><div class="step-title">Browser PUT presigned URL directly to S3</div>
 <pre style="margin-top:6px;"><span class="k">await</span> fetch(uploadUrl, {
   method: <span class="s">'PUT'</span>, body: file,
   headers: { <span class="s">'Content-Type'</span>: <span class="s">'application/pdf'</span> }
-}); <span class="c">// EC2 is NOT involved</span></pre></div></div></div>
+}); <span class="c">// EC2 is NOT involved</span></pre></div></div>
           <div class="step"><div class="step-num" style="background:#7c3aed;color:#fff">5</div><div class="step-body"><div class="step-title">Browser → POST /api/v1/orders/{id}/confirm-upload</div><div class="step-detail">Sends <code>{"key":"uploads/..."}</code> to tell api-order upload is complete.</div></div></div>
           <div class="step"><div class="step-num" style="background:#22c55e;color:#fff">6</div><div class="step-body"><div class="step-title">api-order → RDS: INSERT document record</div>
 <pre style="margin-top:6px;"><span class="k">INSERT INTO</span> documents (order_id, s3_key, original_name, uploaded_at)
-<span class="k">VALUES</span> ($1, $2, $3, NOW())</pre></div></div></div>
+<span class="k">VALUES</span> ($1, $2, $3, NOW())</pre></div></div>
         </div>
       </div>
       <div>
@@ -1301,7 +1334,7 @@
   <div class="wrap">
     <div class="section-label">Infrastructure as Code</div>
     <div class="section-title">CloudFormation Stacks</div>
-    <div class="section-sub">10 independent stacks · Cross-stack references via SSM Parameter Store (not CF Exports — avoids deletion locks) · Deploy or delete any stack independently.</div>
+    <div class="section-sub">11 independent stacks · Cross-stack references via SSM Parameter Store (not CF Exports — avoids deletion locks) · Deploy or delete any stack independently.</div>
 
     <div class="good" style="margin-bottom:20px;"><strong>Why SSM Parameter Store instead of CloudFormation Exports?</strong> CF Exports create hard dependencies — you cannot delete Stack A if Stack B imports its export. SSM Parameters have no such constraint. Each stack reads SSM at deploy time, not at template parse time. This allows deleting and rebuilding any single stack without breaking others.</div>
 
@@ -1310,12 +1343,13 @@
       <div class="stack-card"><div class="stack-num">02</div><div class="stack-name">security</div><div class="stack-desc">All 5 security groups: alb-sg, fe-ec2-sg, be-ec2-sg, rds-sg, redis-sg. Reads VPC ID from SSM.</div><div class="stack-ssm">SSM writes:<br><span>/polaris/prod/sg/alb</span><br><span>/polaris/prod/sg/fe-ec2</span><br><span>/polaris/prod/sg/be-ec2</span><br><span>/polaris/prod/sg/rds</span><br><span>/polaris/prod/sg/redis</span></div></div>
       <div class="stack-card"><div class="stack-num">03</div><div class="stack-name">database</div><div class="stack-desc">RDS PostgreSQL 16, Multi-AZ, db.t3.medium, 100GB gp3, subnet group in isolated subnets, DeletionPolicy:Snapshot. <strong style="color:var(--green);">+ Read Replica</strong> (async, separate reader endpoint, db.t3.medium).</div><div class="stack-ssm">SSM writes:<br><span>/polaris/prod/rds/endpoint</span><br><span>/polaris/prod/rds/reader-endpoint</span><br><span>/polaris/prod/rds/port</span></div></div>
       <div class="stack-card" style="opacity:0.4;border-style:dashed;"><div class="stack-num" style="color:#334155;">04</div><div class="stack-name" style="color:var(--muted);">cache <span style="color:var(--yellow);font-size:0.6rem;">⏸ DEFERRED</span></div><div class="stack-desc">ElastiCache Redis 7.1, cache.t3.micro, 1 primary + 1 replica, AutomaticFailoverEnabled. <strong style="color:var(--yellow);">Not deployed in this phase.</strong> Add when BullMQ or session caching is needed.</div><div class="stack-ssm">SSM writes (future):<br><span>/polaris/prod/redis/endpoint</span><br><span>/polaris/prod/redis/port</span></div></div>
-      <div class="stack-card"><div class="stack-num">05</div><div class="stack-name">compute</div><div class="stack-desc">2 EC2 cluster hosts (t3.medium each, 1 per AZ) as ECS container substrate · ECS cluster <code>polaris-prod</code> · 2 ECS services (api-user, api-order, FE deferred) · IAM instance profile + per-task IAM roles · Launch Template with ECS-optimized AMI · UserData bootstraps ECS agent + SSM + CW Agent</div><div class="stack-ssm">SSM writes:<br><span>/polaris/prod/ecs/cluster-arn</span><br><span>/polaris/prod/ecs/service-api-user-arn</span><br><span>/polaris/prod/ecs/service-api-order-arn</span></div></div>
-      <div class="stack-card"><div class="stack-num">06</div><div class="stack-name">load-balancer</div><div class="stack-desc">ALB, 5 target groups, HTTP→HTTPS redirect listener, HTTPS listener with TLS13 policy, 6 listener rules, health check config (/healthz every 30s)</div><div class="stack-ssm">SSM writes:<br><span>/polaris/prod/alb/dns-name</span><br><span>/polaris/prod/alb/arn</span></div></div>
+      <div class="stack-card"><div class="stack-num">05</div><div class="stack-name">compute</div><div class="stack-desc">2 EC2 cluster hosts (t3.medium each, 1 per AZ) as ECS container substrate · ECS cluster <code>polaris-prod</code> · 3 ECS services (api-gateway, api-user, api-order, FE deferred) · ECS Service Connect namespace config · IAM instance profile + per-task IAM roles · Launch Template with ECS-optimized AMI · UserData bootstraps ECS agent + SSM + CW Agent</div><div class="stack-ssm">SSM writes:<br><span>/polaris/prod/ecs/cluster-arn</span><br><span>/polaris/prod/ecs/service-api-user-arn</span><br><span>/polaris/prod/ecs/service-api-order-arn</span></div></div>
+      <div class="stack-card"><div class="stack-num">06</div><div class="stack-name">load-balancer</div><div class="stack-desc">ALB, 4 FE target groups, HTTP→HTTPS redirect listener, HTTPS listener with TLS13 policy, 4 FE listener rules (api rule lives in polaris-gateway stack), health check config (/healthz every 30s)</div><div class="stack-ssm">SSM writes:<br><span>/polaris/prod/alb/dns-name</span><br><span>/polaris/prod/alb/arn</span><br><span>/polaris/prod/alb/https-listener-arn</span></div></div>
       <div class="stack-card"><div class="stack-num">07</div><div class="stack-name">cdn</div><div class="stack-desc">4 CloudFront distributions, ACM wildcard cert (us-east-1 — required by CF), WAF WebACL (us-east-1), Route 53 A Alias records, CloudFront OAC for S3 static bucket</div><div class="stack-ssm">SSM writes:<br><span>/polaris/prod/cf/customer-domain</span><br><span>/polaris/prod/cf/api-domain</span><br><span>/polaris/prod/cf/dist-ids</span></div></div>
-      <div class="stack-card"><div class="stack-num">08</div><div class="stack-name">cicd</div><div class="stack-desc">ECR repos ×3 (fe, api-user, api-order), IAM OIDC Provider for GitHub, GHA Deploy IAM Role, lifecycle policy (keep 10 images)</div><div class="stack-ssm">SSM writes:<br><span>/polaris/prod/ecr/fe-uri</span><br><span>/polaris/prod/ecr/api-user-uri</span><br><span>/polaris/prod/iam/gha-role-arn</span></div></div>
+      <div class="stack-card"><div class="stack-num">08</div><div class="stack-name">cicd</div><div class="stack-desc">ECR repos ×4 (fe, api-user, api-order, <strong>api-gateway</strong>), IAM OIDC Provider for GitHub, GHA Deploy IAM Role, lifecycle policy (keep 10 images)</div><div class="stack-ssm">SSM writes:<br><span>/polaris/prod/ecr/fe-uri</span><br><span>/polaris/prod/ecr/api-user-uri</span><br><span>/polaris/prod/ecr/api-order-uri</span><br><span>/polaris/prod/iam/gha-role-arn</span></div></div>
       <div class="stack-card"><div class="stack-num">09</div><div class="stack-name">storage</div><div class="stack-desc">S3 uploads bucket (private, versioned, lifecycle, CORS for *.yourapp.com), S3 static bucket (CloudFront OAC), S3 VPC Gateway Endpoint (free NAT bypass)</div><div class="stack-ssm">SSM writes:<br><span>/polaris/prod/s3/uploads-bucket</span><br><span>/polaris/prod/s3/static-bucket</span><br><span>/polaris/prod/s3/uploads-arn</span></div></div>
       <div class="stack-card"><div class="stack-num">10</div><div class="stack-name">observability</div><div class="stack-desc">CloudWatch Log Groups (30-day retention), Metric Alarms (RDS connections >80, ALB 5xx >10, CPU >80%), SNS email topic, CloudWatch dashboard</div><div class="stack-ssm">SSM writes:<br><span>/polaris/prod/cw/log-group-fe</span><br><span>/polaris/prod/sns/alerts-arn</span></div></div>
+      <div class="stack-card" style="border-color:#2563eb;"><div class="stack-num" style="color:#93c5fd;">11</div><div class="stack-name" style="color:#93c5fd;">polaris-gateway <span class="chip" style="background:#0c1a3a;color:#93c5fd;border:1px solid #2563eb;font-size:0.55rem;">NEW</span></div><div class="stack-desc">api-gateway ECS task SG (<code>api-gateway-task-sg</code>), ingress rules on api-user/api-order task SGs, api-gateway ALB target group, <strong>Priority 1 ALB listener rule</strong> (host-header → tg-api-gateway :3000), Cloud Map namespace <code>polaris.local</code> (ECS Service Connect), ECR repo <code>polaris/api-gateway</code>. Deploys after 06-load-balancer (needs HTTPS listener ARN) and 05-compute (needs cluster ARN + backend task SG IDs).</div><div class="stack-ssm">SSM writes:<br><span>/polaris/prod/sg/api-gateway-task</span><br><span>/polaris/prod/alb/api-gateway-tg-arn</span><br><span>/polaris/prod/ecr/api-gateway-uri</span><br><span>/polaris/prod/cloudmap/namespace-id</span></div></div>
     </div>
 
     <h3>Deploy Order (first time only)</h3>
@@ -1323,16 +1357,17 @@
       <div class="stack-row"><div class="stack-phase">Phase 1</div><div class="phase-arrow">→</div><div class="stack-items"><div class="stack-chip done">01 · vpc<br><span style="font-size:0.58rem;color:var(--muted)">10.0.0.0/16 · subnets · NAT · IGW</span></div></div></div>
       <div class="stack-row"><div class="stack-phase">Phase 2</div><div class="phase-arrow">→</div><div class="stack-items"><div class="stack-chip done">02 · security<br><span style="font-size:0.58rem;color:var(--muted)">ALB / FE / BE / RDS / Redis SGs</span></div></div></div>
       <div class="stack-row"><div class="stack-phase">Phase 3<br><span style="color:var(--orange);font-size:0.52rem">ALL PARALLEL</span></div><div class="phase-arrow">→</div><div class="stack-items"><div class="stack-chip parallel">03 · database<br><span style="font-size:0.58rem;color:var(--muted)">RDS PostgreSQL 16 Multi-AZ + Read Replica</span></div><div class="stack-chip" style="opacity:0.4;border-style:dashed;">04 · cache<br><span style="font-size:0.58rem;color:var(--yellow)">⏸ Deferred</span></div><div class="stack-chip parallel">08 · cicd<br><span style="font-size:0.58rem;color:var(--muted)">ECR repos · OIDC role</span></div><div class="stack-chip parallel">09 · storage<br><span style="font-size:0.58rem;color:var(--muted)">S3 uploads + static</span></div></div></div>
-      <div class="stack-row"><div class="stack-phase">Phase 4</div><div class="phase-arrow">→</div><div class="stack-items"><div class="stack-chip done">05 · compute<br><span style="font-size:0.58rem;color:var(--muted)">2 EC2 cluster hosts + ECS cluster + 2 services + per-task IAM</span></div></div></div>
-      <div class="stack-row"><div class="stack-phase">Phase 5</div><div class="phase-arrow">→</div><div class="stack-items"><div class="stack-chip done">06 · load-balancer<br><span style="font-size:0.58rem;color:var(--muted)">ALB · 5 target groups · listener rules</span></div></div></div>
+      <div class="stack-row"><div class="stack-phase">Phase 4</div><div class="phase-arrow">→</div><div class="stack-items"><div class="stack-chip done">05 · compute<br><span style="font-size:0.58rem;color:var(--muted)">2 EC2 cluster hosts + ECS cluster + 3 services + per-task IAM</span></div></div></div>
+      <div class="stack-row"><div class="stack-phase">Phase 5</div><div class="phase-arrow">→</div><div class="stack-items"><div class="stack-chip done">06 · load-balancer<br><span style="font-size:0.58rem;color:var(--muted)">ALB · 4 FE target groups · FE listener rules · writes HTTPS listener ARN to SSM</span></div></div></div>
+      <div class="stack-row"><div class="stack-phase">Phase 5.5<br><span style="color:#93c5fd;font-size:0.52rem">NEW</span></div><div class="phase-arrow">→</div><div class="stack-items"><div class="stack-chip" style="border-color:#2563eb;color:#93c5fd;background:#0c1a3a;">11 · polaris-gateway<br><span style="font-size:0.58rem;color:var(--muted)">api-gateway task SG · ALB rule P1 · tg-api-gateway · Cloud Map polaris.local · ECR api-gateway</span></div></div></div>
       <div class="stack-row"><div class="stack-phase">Phase 6</div><div class="phase-arrow">→</div><div class="stack-items"><div class="stack-chip done">07 · cdn<br><span style="font-size:0.58rem;color:var(--muted)">4 CloudFront distros · WAF · Route 53 A records</span></div></div></div>
       <div class="stack-row"><div class="stack-phase">Phase 7</div><div class="phase-arrow">→</div><div class="stack-items"><div class="stack-chip done">10 · observability<br><span style="font-size:0.58rem;color:var(--muted)">CloudWatch logs · alarms · SNS email</span></div></div></div>
     </div>
 
     <div class="note" style="margin-top:16px;">
       <strong>Stack Dependency Graph:</strong><br>
-      <code>01-vpc → 02-security → { 03-db, 04-cache, 05-compute, 08-cicd, 09-storage } → 06-load-balancer → 07-cdn → 10-observability</code><br><br>
-      <strong>To delete everything (teardown):</strong> Reverse order: 10 → 07 → 06 → 05 → 04 → 03 → 09 → 08 → 02 → 01. No manual cleanup needed. RDS takes final snapshot before deletion.
+      <code>01-vpc → 02-security → { 03-db, 04-cache, 05-compute, 08-cicd, 09-storage } → 06-load-balancer → 11-polaris-gateway → 07-cdn → 10-observability</code><br><br>
+      <strong>To delete everything (teardown):</strong> Reverse order: 10 → 07 → 11 → 06 → 05 → 04 → 03 → 09 → 08 → 02 → 01. No manual cleanup needed. RDS takes final snapshot before deletion.
     </div>
 
     <h3>SSM Parameters — Cross-Stack Reference Pattern</h3>
@@ -1341,9 +1376,10 @@
       <tr><td><strong>01-vpc</strong></td><td><code>/polaris/prod/vpc/id</code>, <code>/subnet/public-a/b</code>, <code>/subnet/private-a/b</code>, <code>/subnet/isolated-a/b</code></td><td>02-security, 03-db, 04-cache, 05-compute, 09-storage</td></tr>
       <tr><td><strong>02-security</strong></td><td><code>/sg/alb</code>, <code>/sg/fe-ec2</code>, <code>/sg/be-ec2</code>, <code>/sg/rds</code>, <code>/sg/redis</code></td><td>03-db, 04-cache, 05-compute, 06-alb</td></tr>
       <tr><td><strong>05-compute</strong></td><td><code>/ec2/fe-id</code>, <code>/ec2/api-user-id</code>, <code>/ec2/api-order-id</code></td><td>GHA deploy workflow (SSM send-command targets)</td></tr>
-      <tr><td><strong>06-alb</strong></td><td><code>/alb/dns-name</code>, <code>/alb/arn</code></td><td>07-cdn (CF origin = ALB DNS)</td></tr>
+      <tr><td><strong>06-alb</strong></td><td><code>/alb/dns-name</code>, <code>/alb/arn</code>, <code>/alb/https-listener-arn</code></td><td>07-cdn (CF origin = ALB DNS) · 11-polaris-gateway (listener rule attachment)</td></tr>
       <tr><td><strong>07-cdn</strong></td><td><code>/cf/customer-domain</code>, <code>/cf/dist-ids</code></td><td>GHA deploy workflow (CF invalidation)</td></tr>
       <tr><td><strong>08-cicd</strong></td><td><code>/ecr/fe-uri</code>, <code>/ecr/api-user-uri</code>, <code>/ecr/api-order-uri</code>, <code>/iam/gha-role-arn</code></td><td>GHA workflows (push targets, role ARN)</td></tr>
+      <tr><td><strong>11-polaris-gateway</strong></td><td><code>/sg/api-gateway-task</code>, <code>/alb/api-gateway-tg-arn</code>, <code>/ecr/api-gateway-uri</code>, <code>/cloudmap/namespace-id</code></td><td>GHA deploy workflow (api-gateway ECR push, ECS deploy) · 05-compute (Service Connect config)</td></tr>
     </table>
   </div>
 </section>
@@ -1363,11 +1399,12 @@
       <tr><th>Port</th><th>Protocol</th><th>Service</th><th>Direction</th><th>Security Group Rule</th></tr>
       <tr><td><span class="port">:80</span></td><td><span class="proto">TCP/HTTP</span></td><td>ALB</td><td>Internet → ALB</td><td>alb-sg inbound: 0.0.0.0/0 (redirects to :443)</td></tr>
       <tr><td><span class="port">:443</span></td><td><span class="proto">TCP/HTTPS</span></td><td>ALB</td><td>CloudFront → ALB</td><td>alb-sg inbound: CloudFront managed prefix list only</td></tr>
+      <tr><td><span class="port">:3000</span></td><td><span class="proto">TCP/HTTP</span></td><td>api-gateway (Express proxy)</td><td>ALB → api-gateway task ENI</td><td>api-gateway-task-sg inbound: :3000 from alb-sg · single entry point for all API traffic</td></tr>
       <tr><td><span class="port">:3000</span></td><td><span class="proto">TCP/HTTP</span></td><td>customer-marketing (Next.js)</td><td>ALB → FE EC2 → Caddy → container</td><td>fe-ec2-sg inbound: :3000 from alb-sg</td></tr>
       <tr><td><span class="port">:3001</span></td><td><span class="proto">TCP/HTTP</span></td><td>partner-portal (Next.js)</td><td>ALB → FE EC2 → Caddy → container</td><td>fe-ec2-sg inbound: :3001 from alb-sg</td></tr>
       <tr><td><span class="port">:3002</span></td><td><span class="proto">TCP/HTTP</span></td><td>staff-partner-settings (Next.js)</td><td>ALB → FE EC2 → Caddy → container</td><td>fe-ec2-sg inbound: :3002 from alb-sg</td></tr>
-      <tr><td><span class="port">:8008</span></td><td><span class="proto">TCP/HTTP</span></td><td>api-user (Express)</td><td>ALB → api-user EC2 → container</td><td>be-ec2-sg inbound: :8008 from alb-sg</td></tr>
-      <tr><td><span class="port">:8009</span></td><td><span class="proto">TCP/HTTP</span></td><td>api-order (Express)</td><td>ALB → api-order EC2 → container</td><td>be-ec2-sg inbound: :8009 from alb-sg</td></tr>
+      <tr><td><span class="port">:8008</span></td><td><span class="proto">TCP/HTTP</span></td><td>api-user (Express)</td><td>api-gateway task → api-user task ENI (Service Connect · <code>api-user.polaris.local</code>)</td><td>api-user-task-sg inbound: :8008 from api-gateway-task-sg only (not from alb-sg)</td></tr>
+      <tr><td><span class="port">:8009</span></td><td><span class="proto">TCP/HTTP</span></td><td>api-order (Express)</td><td>api-gateway task → api-order task ENI (Service Connect · <code>api-order.polaris.local</code>)</td><td>api-order-task-sg inbound: :8009 from api-gateway-task-sg only (not from alb-sg)</td></tr>
       <tr><td><span class="port">:5432</span></td><td><span class="proto">TCP/TLS</span></td><td>RDS PostgreSQL</td><td>EC2 → RDS (isolated subnet)</td><td>rds-sg inbound: :5432 from fe-ec2-sg + be-ec2-sg + codebuild-sg</td></tr>
       <tr style="opacity:0.4;"><td><span class="port">:6379</span></td><td><span class="proto">TCP/TLS</span></td><td>ElastiCache Redis <span style="color:var(--yellow);font-size:0.6rem;">⏸ DEFERRED</span></td><td>EC2 → Redis (isolated subnet) — not yet active</td><td>redis-sg inbound: :6379 from fe-ec2-sg + be-ec2-sg — provisioned in future phase</td></tr>
       <tr><td><span class="port">:443</span></td><td><span class="proto">HTTPS</span></td><td>ECR, Secrets Manager, Stripe, Postmark, Anthropic, Sentry</td><td>EC2 → NAT GW → Internet → SaaS</td><td>be-ec2-sg outbound: :443 to 0.0.0.0/0 (via NAT)</td></tr>
@@ -1375,7 +1412,7 @@
     </table>
 
     <h3 style="margin-top:20px">Why EC2 Ports Are Not Public</h3>
-    <div class="note">ECS cluster hosts (EC2) and task ENIs have no public IPs. They live in private subnets (<code>10.0.10.x</code>, <code>10.0.11.x</code>). The only inbound rule on <code>api-user-task-sg</code> / <code>api-order-task-sg</code> is <em>from alb-sg</em> — meaning only the ALB can initiate connections to task ENIs. The cluster host SG (<code>ecs-host-sg</code>) accepts no app inbound at all. No port scanners, bots, or internet traffic can reach tasks or hosts directly, even if they somehow knew the private IPs.</div>
+    <div class="note">ECS cluster hosts (EC2) and task ENIs have no public IPs. They live in private subnets (<code>10.0.10.x</code>, <code>10.0.11.x</code>). The only inbound rule on <code>api-gateway-task-sg</code> is <em>from alb-sg</em>. The only inbound rules on <code>api-user-task-sg</code> / <code>api-order-task-sg</code> are <em>from api-gateway-task-sg</em> — meaning only api-gateway can reach backend tasks. The cluster host SG (<code>ecs-host-sg</code>) accepts no app inbound at all. No port scanners, bots, or internet traffic can reach tasks or hosts directly, even if they somehow knew the private IPs.</div>
   </div>
 </section>
 <hr class="div">
