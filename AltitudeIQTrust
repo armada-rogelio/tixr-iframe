@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<!-- saved from url=(0059)file:///Applications/Altitude/altitudeiq_website/trust.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AltitudeIQ Trust &amp; Security Overview — security model, encryption, access controls, AI governance, incident response, and compliance posture for our enterprise data quality platform.">
+    <title>Trust | AltitudeIQ</title>
+    <link rel="icon" href="file:///Applications/Altitude/altitudeiq_website/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="./Trustv2_files/css2" rel="stylesheet">
+    <link rel="stylesheet" href="./Trustv2_files/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="file:///" class="logo">
+                <img src="./Trustv2_files/logo.png" alt="AltitudeIQ - High Data Quality. Inevitable." class="logo-img">
+            </a>
+        </div>
+    </header>
+
+    <main class="legal-page">
+        <div class="legal-wrap">
+            <!-- Sidebar / Table of Contents -->
+            <aside class="legal-sidebar">
+                <div class="legal-sidebar-inner">
+                    <h1 class="legal-sidebar-title">Trust</h1>
+                    <p class="legal-meta">Last updated: June 10, 2026</p>
+                    <nav class="legal-toc" aria-label="Trust page sections">
+                        <ul>
+                            <li><a href="file:///Applications/Altitude/altitudeiq_website/trust.html#security-model" class="is-active">Security Model</a></li>
+                            <li><a href="file:///Applications/Altitude/altitudeiq_website/trust.html#governance-commitments" class="">Governance Commitments</a></li>
+                            <li><a href="file:///Applications/Altitude/altitudeiq_website/trust.html#encryption" class="">Encryption and Data Protection</a></li>
+                            <li><a href="file:///Applications/Altitude/altitudeiq_website/trust.html#identity-access" class="">Identity and Access Management</a></li>
+                            <li><a href="file:///Applications/Altitude/altitudeiq_website/trust.html#secure-development">Secure Software Development</a></li>
+                            <li><a href="file:///Applications/Altitude/altitudeiq_website/trust.html#ai-governance">AI Governance</a></li>
+                            <li><a href="file:///Applications/Altitude/altitudeiq_website/trust.html#incident-response">Incident Response</a></li>
+                            <li><a href="file:///Applications/Altitude/altitudeiq_website/trust.html#compliance-posture">Compliance Posture</a></li>
+                            <li><a href="file:///Applications/Altitude/altitudeiq_website/trust.html#sub-processors">Sub-Processor Management</a></li>
+                            <li><a href="file:///Applications/Altitude/altitudeiq_website/trust.html#personnel-security">Personnel Security</a></li>
+                            <li><a href="file:///Applications/Altitude/altitudeiq_website/trust.html#customer-responsibilities">Customer Responsibilities</a></li>
+                            <li><a href="file:///Applications/Altitude/altitudeiq_website/trust.html#vulnerability-disclosure">Vulnerability Disclosure</a></li>
+                            <li><a href="file:///Applications/Altitude/altitudeiq_website/trust.html#scope">Scope and Limitations</a></li>
+                            <li><a href="file:///Applications/Altitude/altitudeiq_website/trust.html#contact">Contact</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Main content -->
+            <article class="legal-content">
+                <section class="legal-section">
+                    <p>AltitudeIQ provides enterprise data quality software designed to operate inside customer-controlled environments. This page summarizes how AltitudeIQ designs, operates, and governs its products with respect to security, privacy, AI governance, and regulatory posture. For details on personal information handling, see our <a href="file:///privacy-policy">Privacy Policy</a>.</p>
+                </section>
+
+                <section id="security-model" class="legal-section">
+                    <h2>Security Model</h2>
+                    <p>AltitudeIQ's defining security characteristic is that customer Service Data does not leave the customer's own cloud environment. A101 is deployed into the customer's own cloud subscription using a Bicep-based installer; the entire platform — compute, database, storage, secret store, and virtual network — runs inside the customer's subscription. AltitudeIQ does not extract, transmit, or store customer Service Data outside the customer environment except where the customer expressly authorizes a specific operation in writing.</p>
+                    <p>Each customer deployment is a single-tenant, dedicated-stack environment. There is no shared application tier, shared database, or shared storage between customer deployments — isolation is architectural, not logical. Within the customer subscription, A101 enforces tenant boundaries through customer-managed identity, secrets stored in customer Key Vault, and network controls configured on the customer virtual network.</p>
+                    <p>AltitudeIQ operates an internal Control Plane service for monitoring of deployed instances. The Control Plane receives only operational metadata (deployment health, license validation, aggregate performance metrics, configuration metadata) and never receives customer Service Data.</p>
+                </section>
+
+                <section id="governance-commitments" class="legal-section">
+                    <h2>Governance Commitments</h2>
+                    <p>AltitudeIQ commits to the following governance positions across all customer engagements. These positions are reflected in the AltitudeIQ Master Subscription Agreement and in our internal AI Governance Policy:</p>
+                    <ul>
+                        <li><strong>Customer data stays in customer-controlled environments.</strong> AltitudeIQ does not extract, transmit, or store customer Service Data outside the customer's environment except where the customer expressly authorizes a specific operation in writing.</li>
+                        <li><strong>No cross-customer model training.</strong> AltitudeIQ does not use customer Service Data to train models that serve any other customer. Where the Services use machine-learning components, learning is tenant-isolated.</li>
+                        <li><strong>AltitudeIQ is not a system of record.</strong> Customers retain regulatory and validation responsibility for any use of AltitudeIQ in regulated activities. AltitudeIQ's products are assistive — they support, rather than replace, the customer's authoritative systems and governance.</li>
+                        <li><strong>GxP-sensitive records are outside writeback scope.</strong> A101 does not autonomously create, modify, or delete records in GxP-regulated domains. This boundary is enforced by product design.</li>
+                        <li><strong>Writebacks require human review.</strong> Where the Services execute writebacks within the customer environment, those writebacks are reviewed and confirmed by a human authorized by the customer before execution, except where the customer expressly authorizes otherwise in a written addendum.</li>
+                    </ul>
+                </section>
+
+                <section id="encryption" class="legal-section">
+                    <h2>Encryption and Data Protection</h2>
+                    <ul>
+                        <li><strong>Encryption in transit.</strong> TLS 1.2 or higher is enforced for all communication between A101 components, customer source systems, customer authorized users, and the AltitudeIQ Control Plane.</li>
+                        <li><strong>Encryption at rest.</strong> AES-256 encryption is applied to all data at rest in the customer-deployed A101 instance, using the encryption services native to the customer's cloud (e.g., Azure Storage Service Encryption, Azure Database encryption).</li>
+                        <li><strong>Secrets management.</strong> Secrets used by A101 are stored in customer-managed Key Vault. Static credentials are not used; A101 authenticates to customer infrastructure through customer-managed identity.</li>
+                        <li><strong>Field-level masking.</strong> Where the customer configures field-level masking, A101 enforces it consistently across rule execution and reporting.</li>
+                        <li><strong>Authorization model.</strong> A101 implements fail-closed authorization: actions that the role of the requesting user is not explicitly authorized to perform are denied by default.</li>
+                    </ul>
+                </section>
+
+                <section id="identity-access" class="legal-section">
+                    <h2>Identity and Access Management</h2>
+                    <ul>
+                        <li><strong>Multi-factor authentication.</strong> MFA is required for all administrative access to AltitudeIQ systems and to customer environments where AltitudeIQ personnel have access.</li>
+                        <li><strong>Conditional Access.</strong> Conditional Access policies enforce device-, location-, and risk-based controls on administrative sessions.</li>
+                        <li><strong>Least privilege.</strong> Access to customer environments is granted under the principle of least privilege; access is scoped to the engagement, time-bound where practicable, and reviewed quarterly.</li>
+                        <li><strong>Joiner / Mover / Leaver.</strong> Personnel access is provisioned at hire, adjusted at role change, and revoked at termination. Quarterly access reviews verify current state against role definitions.</li>
+                        <li><strong>Customer-controlled access.</strong> Where AltitudeIQ personnel access the customer environment, access is granted by the customer, scoped by the customer, and revocable by the customer at any time.</li>
+                    </ul>
+                </section>
+
+                <section id="secure-development" class="legal-section">
+                    <h2>Secure Software Development</h2>
+                    <ul>
+                        <li><strong>Code review.</strong> All production code changes are peer-reviewed before merge. Reviewer attestation is recorded in the change log.</li>
+                        <li><strong>Dependency scanning.</strong> Automated dependency scanning identifies known-vulnerable components in AltitudeIQ-built and third-party libraries. Findings are triaged and remediated against severity-tiered patch SLAs.</li>
+                        <li><strong>Secrets management in CI/CD.</strong> AltitudeIQ does not store secrets in source code. CI/CD pipelines retrieve secrets from managed stores at runtime.</li>
+                        <li><strong>Environment separation.</strong> Development, test, and production environments are logically separated. Customer environments are not used for AltitudeIQ's development or testing purposes.</li>
+                        <li><strong>CI/CD platforms.</strong> AltitudeIQ uses GitHub Actions and Jenkins for build, test, and deployment automation, with branch protection and signed-tag release controls.</li>
+                        <li><strong>Vulnerability management.</strong> AltitudeIQ operates a vulnerability management program with severity-tiered patch SLAs and tracks remediation evidence in connection with our SOC 2 readiness.</li>
+                    </ul>
+                </section>
+
+                <section id="ai-governance" class="legal-section">
+                    <h2>AI Governance</h2>
+                    <p>AltitudeIQ operates a formal AI Governance Policy that defines product-side guardrails, autonomy boundaries, and oversight responsibilities.</p>
+                    <ul>
+                        <li><strong>LLM scope (A101).</strong> LLM-powered features in A101 operate exclusively on a customer-provided LLM subscription (e.g., Azure OpenAI under the customer's own subscription, configured for zero retention by the customer). AltitudeIQ does not provide, host, manage, or pay for any LLM subscription used by A101 features.</li>
+                        <li><strong>No production data values to LLM.</strong> LLM inference in A101 is scoped to structural metadata, conversational context, and user-initiated queries. Customer production data values are not transmitted to the LLM without explicit user action.</li>
+                        <li><strong>Rule-based core.</strong> The Contextual Compiler and the Writeback Engine in A101 use rule-based logic and statistical models — not LLM-driven decisioning.</li>
+                        <li><strong>Tenant-isolated learning.</strong> Where machine-learning components are used, learning is tenant-isolated. Parameters and patterns derived from one customer's data are not shared with any other customer.</li>
+                        <li><strong>Versioning and audit logging.</strong> All autonomous actions performed by the Services produce versioned, audit-logged records, including reason codes and confidence scores accessible to the customer.</li>
+                        <li><strong>Human-in-the-loop for writebacks.</strong> Writebacks require human review and confirmation before execution.</li>
+                    </ul>
+                </section>
+
+                <section id="incident-response" class="legal-section">
+                    <h2>Incident Response</h2>
+                    <p>AltitudeIQ operates a formal Incident Response Framework that defines severity classification, escalation paths, and response responsibilities.</p>
+                    <ul>
+                        <li><strong>Customer notification.</strong> If AltitudeIQ becomes aware of a confirmed security incident affecting the customer's Service Data or environment as a result of AltitudeIQ's acts or omissions, AltitudeIQ notifies the customer without undue delay, and in any event no later than two (2) business days after AltitudeIQ's confirmation of the incident, except where a customer agreement specifies a tighter notification commitment.</li>
+                        <li><strong>HIPAA breach notification.</strong> Where the AltitudeIQ Business Associate Agreement applies, HIPAA regulatory notification of a breach of unsecured Protected Health Information is provided within 60 calendar days as required by 45 CFR § 164.404. BAA breach notification obligations prevail to the extent of any conflict.</li>
+                        <li><strong>On-call coverage.</strong> AltitudeIQ maintains email-based on-call coverage with escalation to senior leadership for material matters. Customer-environment monitoring tooling (e.g., Azure Monitor) provides the alerting source.</li>
+                        <li><strong>Coordination.</strong> AltitudeIQ coordinates with the customer's incident response process and provides reasonable cooperation in containment, evidence preservation, and root-cause analysis.</li>
+                    </ul>
+                </section>
+
+                <section id="compliance-posture" class="legal-section">
+                    <h2>Compliance Posture</h2>
+                    <ul>
+                        <li><strong>SOC 2 alignment.</strong> AltitudeIQ operates in alignment with the SOC 2 Trust Services Criteria for Security, Availability, Processing Integrity, Confidentiality, and Privacy. A formal SOC 2 examination is underway.</li>
+                        <li><strong>HIPAA.</strong> AltitudeIQ's Chief Compliance Officer is designated as HIPAA Privacy &amp; Security Officer per 45 CFR 164.308(a)(2). AltitudeIQ executes Business Associate Agreements (BAAs) with customers whose use of the Services involves Protected Health Information.</li>
+                        <li><strong>Defense-sector readiness.</strong> AltitudeIQ is actively evaluating ITAR, CMMC 2.0, NIST SP 800-171, and DFARS 252.204-7012 readiness in connection with prospective defense-sector engagements. ITAR-scope deployments would require Azure Government or equivalent infrastructure separate from AltitudeIQ's commercial-cloud footprint.</li>
+                        <li><strong>Customer-direct cloud.</strong> Each customer's cloud subscription, where A101 is deployed, is governed by the customer's own contractual relationship with the cloud provider. Microsoft, AWS, and other major cloud providers maintain their own compliance attestations independent of AltitudeIQ.</li>
+                    </ul>
+                </section>
+
+                <section id="sub-processors" class="legal-section">
+                    <h2>Sub-Processor Management</h2>
+                    <p>AltitudeIQ maintains a Sub-processor List identifying entities that process customer Personal Data on AltitudeIQ's behalf. Because customer Service Data resides within the customer's own environment under the customer-hosted deployment model, AltitudeIQ's direct sub-processor footprint for customer Service Data is intentionally narrow. Customer-direct relationships (the customer's own cloud-provider subscription, the customer's own LLM subscription) are not AltitudeIQ sub-processors.</p>
+                    <ul>
+                        <li><strong>Sub-processor change notification.</strong> AltitudeIQ provides at least thirty (30) days' advance notice of the addition or replacement of any sub-processor that processes customer Personal Data.</li>
+                        <li><strong>Customer objection rights.</strong> Customers may object to a new sub-processor on reasonable security or privacy grounds; unresolved objections may, as the customer's sole and exclusive remedy, support termination of the affected agreement with pro-rata refund of unused prepaid fees.</li>
+                        <li><strong>Vendor security review.</strong> Sub-processors are subject to AltitudeIQ's vendor risk-management process, including review of relevant third-party attestations (e.g., SOC 2 Type 2) and contractual flow-down of security and confidentiality obligations.</li>
+                    </ul>
+                    <p>The current Sub-processor List is available to customers and prospects on request through your AltitudeIQ engagement contact.</p>
+                </section>
+
+                <section id="personnel-security" class="legal-section">
+                    <h2>Personnel Security</h2>
+                    <ul>
+                        <li><strong>Background screening.</strong> AltitudeIQ conducts background screening of personnel where appropriate and consistent with applicable jurisdictional law.</li>
+                        <li><strong>Confidentiality.</strong> All AltitudeIQ personnel — employees and engaged contractors — are bound by confidentiality obligations through employment agreements, contractor agreements, and AltitudeIQ NDAs.</li>
+                        <li><strong>Security awareness training.</strong> AltitudeIQ delivers annual security awareness training to personnel, with role-based supplementary training where applicable.</li>
+                        <li><strong>HIPAA training.</strong> Personnel with potential PHI access receive mandatory HIPAA awareness training and are instructed to avoid PHI wherever practicable.</li>
+                        <li><strong>Code of Conduct.</strong> All personnel attest to the AltitudeIQ Code of Conduct at hire and on a periodic basis thereafter.</li>
+                    </ul>
+                </section>
+
+                <section id="customer-responsibilities" class="legal-section">
+                    <h2>Customer Responsibilities</h2>
+                    <p>Because AltitudeIQ operates under a customer-hosted deployment model, the customer holds significant control — and corresponding responsibility — for the operating environment. Customers are responsible for the following:</p>
+                    <ul>
+                        <li><strong>Cloud environment.</strong> Provisioning, configuration, monitoring, and operation of the customer's cloud subscription where A101 is deployed.</li>
+                        <li><strong>Identity and access.</strong> Authentication, MFA enforcement, role assignment, and access reviews for users in the customer environment, including any AltitudeIQ personnel granted access.</li>
+                        <li><strong>Customer data.</strong> Classification, retention, deletion, and lifecycle management of customer Service Data.</li>
+                        <li><strong>Authorized users.</strong> Designation and management of authorized users within A101, in accordance with the AltitudeIQ Master Subscription Agreement.</li>
+                        <li><strong>Regulatory and validation responsibility.</strong> Customer retains regulatory and validation responsibility for any use of A101 in regulated activities (e.g., GxP, HIPAA, ITAR-scope work).</li>
+                        <li><strong>BYO LLM configuration.</strong> Where customer enables LLM-powered A101 features, customer is responsible for the LLM subscription, including zero-retention configuration and HIPAA posture verification where PHI may be present.</li>
+                    </ul>
+                </section>
+
+                <section id="vulnerability-disclosure" class="legal-section">
+                    <h2>Vulnerability Disclosure</h2>
+                    <p>To report a suspected security vulnerability, email <a href="mailto:security@altitudeiq.ai">security@altitudeiq.ai</a>. Reports are reviewed and triaged based on severity. Please do not include Protected Health Information, customer data, or production credentials in vulnerability reports.</p>
+                </section>
+
+                <section id="scope" class="legal-section">
+                    <h2>Scope and Limitations</h2>
+                    <p>This page represents AltitudeIQ's good-faith summary of its security, AI governance, and compliance posture as of the date below. It does not create contractual commitments beyond those set out in executed agreements (e.g., the Master Subscription Agreement, Business Associate Agreement, or Order Form). Specific commitments concerning service availability, support response, audit rights, and indemnification are set out in those executed agreements.</p>
+                    <p>AltitudeIQ does not represent itself as having obtained any specific third-party attestation or certification unless such attestation or certification is expressly stated in an executed customer agreement. Statements on this page concerning frameworks such as SOC 2, HIPAA, ITAR, or CMMC describe AltitudeIQ's alignment, readiness, or posture; they should not be read as claims of certification.</p>
+                </section>
+
+                <section id="contact" class="legal-section">
+                    <h2>Contact</h2>
+                    <p>For compliance and governance inquiries — including sub-processor information, AI governance details, and procurement diligence requests:</p>
+                    <div class="legal-contact-card">
+                        <p class="legal-contact-name">Dalton Wang</p>
+                        <p class="legal-contact-role">Chief Compliance Officer &amp; HIPAA Privacy Officer</p>
+                        <p class="legal-contact-org">ALTITUDEIQ, INC.</p>
+                        <p class="legal-contact-email"><a href="mailto:dwang@altitudeiq.ai">dwang@altitudeiq.ai</a></p>
+                    </div>
+                    <p style="margin-top: 1.5rem;">You may also engage AltitudeIQ through your engagement contact (account team, solution architect, or executive sponsor) or through procurement diligence channels for vendor evaluation.</p>
+                </section>
+
+                <p class="legal-meta" style="margin-top: 3rem;"><em>Last updated: June 10, 2026</em></p>
+            </article>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2026 AltitudeIQ, Inc. All rights reserved. · <a href="file:///trust">Trust</a> · <a href="file:///privacy-policy">Privacy Policy</a></p>
+    </footer>
+
+    <script>
+    (function () {
+        var sections = document.querySelectorAll('.legal-section[id]');
+        var links = document.querySelectorAll('.legal-toc a');
+        if (!sections.length || !links.length) return;
+
+        var linkMap = {};
+        links.forEach(function (link) {
+            var id = link.getAttribute('href').slice(1);
+            linkMap[id] = link;
+        });
+
+        function setActive(id) {
+            links.forEach(function (l) { l.classList.remove('is-active'); });
+            if (linkMap[id]) linkMap[id].classList.add('is-active');
+        }
+
+        var observer = new IntersectionObserver(function (entries) {
+            // Pick the topmost section currently intersecting
+            var visible = entries
+                .filter(function (e) { return e.isIntersecting; })
+                .sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+            if (visible.length) {
+                setActive(visible[0].target.id);
+            }
+        }, { rootMargin: '-120px 0px -65% 0px', threshold: 0 });
+
+        sections.forEach(function (s) { observer.observe(s); });
+
+        // Click feedback — set immediately on click
+        links.forEach(function (link) {
+            link.addEventListener('click', function () {
+                setActive(link.getAttribute('href').slice(1));
+            });
+        });
+    })();
+    </script>
+
+
+</body></html>
